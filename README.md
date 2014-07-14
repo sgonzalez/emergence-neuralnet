@@ -1,8 +1,13 @@
-# Decentralized Neural Network Project
+# Emergence Neural Network Project
 This project introduces an extremely flexible, scalable, and easy-to-use tool for the construction, learning, testing, and real-world usage of neural networks. Each neural network system can be composed of one single neural network process, or several neural network and input/output driver processes that are managed by one coordinating command process, communicating through the use of tmp files. The neural networks each cater their own set of commands which are used to manipulate and modify the neural network. These commands are accessible through a user friendly REPL (Read Evaluate Print Loop) or specified command files. Additionally, each neural network is capable of learning through the use of genetic algorithms faculties that have been included. (Backpropagation supervised learning may be included at a future date)
 
 ## Compiling
 To compile, just run ```build.sh``` from the root directory to compile everything, or ```make``` from each child program directory individually. There are no weird dependencies. However, I have not attempted to compile this on Windows and can't guarantee that everything will work "out of the box".
+
+## Licensing
+The code for Emergence is hereby released under the GNU General Public License v2. Specific terms are available in the ```LICENSE``` file. Essentially, Emergence cannot be used in commercial (i.e. paid) software, uses of Emergence must retain attribution, and modifications to Emergence must be re-released into open-source under the same license.
+
+---------------------------------------
 
 ## Coordinator
 The coordinator (also called the command process) manages each child process and coordinates input/output funneling and network updates. Interprocess data communication is achieved through the use of ```/tmp``` files. These files are managed by the coordinator. The coordinator uses a user specified file to store information, much like the feedforward child process has structure and weight files. The coordinator is capable of generating oscillatory inputs and propagating global inputs.
