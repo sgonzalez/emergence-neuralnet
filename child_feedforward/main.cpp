@@ -61,30 +61,30 @@ int main(int argc, char* argv[]) { // main almost exclusively does parameter pro
         if ((arg == "-h") || (arg == "--help")) {
             show_usage(argv[0]);
             return 0;
-            } else if ((arg == "-c") || (arg == "--child")) {
-                runningAsChild = true;
-                } else if ((arg == "-C") || (arg == "--commands")) {
-                    if (i + 1 < argc) { // make sure we aren't at the end of argv
-                    commandsFile = argv[++i]; // oncrement 'i' so we don't get the argument as the next argv[i].
-                } else {
-                    std::cerr << "--commands option requires one argument." << std::endl;
-                    return 1;
-                }  
+        } else if ((arg == "-c") || (arg == "--child")) {
+            runningAsChild = true;
+        } else if ((arg == "-C") || (arg == "--commands")) {
+            if (i + 1 < argc) { // make sure we aren't at the end of argv
+                commandsFile = argv[++i]; // oncrement 'i' so we don't get the argument as the next argv[i].
             } else {
+                std::cerr << "--commands option requires one argument." << std::endl;
+                return 1;
+            }  
+        } else {
             // sources.push_back(argv[i]);
-                if (i + 1 < argc) {
-                    structureFile = argv[i];
-                    weightsFile = argv[i+1];
-                    capturedStructureAndWeights = true;
-                }
+            if (i + 1 < argc) {
+                structureFile = argv[i];
+                weightsFile = argv[i+1];
+                capturedStructureAndWeights = true;
             }
         }
-        if (!capturedStructureAndWeights) {
-            show_usage(argv[0]);
-            return 1;
-        }
-
-        engage(structureFile, weightsFile, commandsFile, runningAsChild);
-
-        return 0;
     }
+    if (!capturedStructureAndWeights) {
+        show_usage(argv[0]);
+        return 1;
+    }
+
+    engage(structureFile, weightsFile, commandsFile, runningAsChild);
+
+    return 0;
+}

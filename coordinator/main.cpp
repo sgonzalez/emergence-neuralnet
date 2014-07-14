@@ -13,7 +13,8 @@ static void show_usage(std::string name) {
         << "Options:\n"
         << "\t-h,--help\t\t\tShow this help message\n"
         << "\t-c,--child\t\t\tRun as a \"child\" process, i.e. with no REPL.\n"
-        << "\t-C,--commands COMMANDS_FILE\tSpecify a command file to run on startup"
+        << "\t-C,--commands COMMANDS_FILE\tSpecify a command file to run on startup\n"
+        << "\t-tk,--tmpkeep\t\t\tPrevent /tmp/emergence-neuralnet delete on termination"
         << std::endl;
 }
 
@@ -44,6 +45,16 @@ void engage(std::string configFile, std::string commandsFile, bool child) {
     }
 }
 
+bool keepTmp = false;
+
+void cleanUp() {
+    if (!keepTmp) {
+        system("exec rm -rf /tmp/emergence-neuralnet");
+        std::cout << std::endl << "Deleting /tmp/emergence-neuralnet..." << std::endl;
+    }
+}
+
+void intHandler(int sig) { exit(0); }
 
 int main(int argc, char* argv[]) { // main almost exclusively does parameter processing
     if (argc < 2) {
@@ -58,22 +69,27 @@ int main(int argc, char* argv[]) { // main almost exclusively does parameter pro
         if ((arg == "-h") || (arg == "--help")) {
             show_usage(argv[0]);
             return 0;
-            } else if ((arg == "-c") || (arg == "--child")) {
-                runningAsChild = true;
-                } else if ((arg == "-C") || (arg == "--commands")) {
-                    if (i + 1 < argc) { // make sure we aren't at the end of argv
-                    commandsFile = argv[++i]; // oncrement 'i' so we don't get the argument as the next argv[i].
-                } else {
-                    std::cerr << "--commands option requires one argument." << std::endl;
-                    return 1;
-                }  
+        } else if ((arg == "-c") || (arg == "--child")) {
+            runningAsChild = true;
+        } else if ((arg == "-tk") || (arg == "--tmpkeep")) {
+            keepTmp = true;
+        } else if ((arg == "-C") || (arg == "--commands")) {
+            if (i + 1 < argc) { // make sure we aren't at the end of argv
+                commandsFile = argv[++i]; // oncrement 'i' so we don't get the argument as the next argv[i].
             } else {
-            // sources.push_back(argv[i]);
-                configFile = argv[i];
-            }
+                std::cerr << "--commands option requires one argument." << std::endl;
+                return 1;
+            }  
+        } else {
+        // sources.push_back(argv[i]);
+            configFile = argv[i];
         }
-
-        engage(configFile, commandsFile, runningAsChild);
-
-        return 0;
     }
+    
+    atexit(cleanUp);
+    signal(SIGINT, intHandler);
+
+    engage(configFile, commandsFile, runningAsChild);
+
+    return 0;
+}

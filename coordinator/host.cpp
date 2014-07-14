@@ -165,6 +165,8 @@ bool Host::runCommand(std::string command) {
         updateChildren();
     } else if (opcode == "targetinterval") {
         targetUpdateInterval = std::stof(firstarg);
+    } else if (opcode == "runcommand") {
+        childRunCommand(firstarg, secondandbeyondarguments);
     } else if (opcode == "save") { // persists the configuration to the output file
         saveConfiguration();
     } else if (opcode == "debug") {
@@ -175,6 +177,10 @@ bool Host::runCommand(std::string command) {
     }
     
     return true;
+}
+
+void Host::childRunCommand(std::string name, std::string command) {
+    
 }
 
 void Host::updateChildren() {

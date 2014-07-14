@@ -30,13 +30,15 @@ class Host {
     
     char *configpath;
     
+    float targetUpdateInterval; ///< in seconds
+    
     void readConfigFile(); ///< read in the configuration from an existing file that is accessible
     
     void addChild(std::string name, std::string invocation); ///< adds a new child to to be managed, referenced by name, called by invocation
     void removeChild(std::string name);
     
-    float targetUpdateInterval; ///< in seconds
     void updateChildren();
+    void childRunCommand(std::string name, std::string command);
     
 public:
     Host(char *configpath);
