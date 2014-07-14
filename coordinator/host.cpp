@@ -62,6 +62,13 @@ bool Host::runCommands(char *filepath) {
 
 void Host::printSummary(std::string prefix) {
     std::cout << prefix << "----------------" << std::endl;
+    std::cout << prefix << "Children: " << std::endl;
+    if (children.size() == 0) {
+        std::cout << prefix << "  none" << std::endl;
+    } else {
+        for (std::pair<std::string, Child> child : children)
+            std::cout << prefix << "  " << child.first << std::endl;
+    }
     // std::cout << prefix << "Outputs:" << std::endl;
     //     if (neuralnet.getOutputs().size() > 0) {
     //         std::cout << prefix << "  " << neuralnet.getLayers().size() << ": (x" << neuralnet.getOutputs().size() << ") ";
@@ -90,6 +97,13 @@ void Host::printSummary(std::string prefix) {
 
 void Host::printStats(std::string prefix) {
     std::cout << prefix << "----------------" << std::endl;
+    std::cout << prefix << "Children: " << std::endl;
+    if (children.size() == 0) {
+        std::cout << prefix << "  none";
+    } else {
+        std::cout << prefix << "  " << children.size();
+    }
+    std::cout << std::endl;
     // std::cout << prefix << "Neurons: " << std::endl;
     //     if (neuralnet.getLayers().size() > 0 || neuralnet.getOutputs().size() > 0) {
     //         int sum = 0;
@@ -121,12 +135,17 @@ bool Host::runCommand(std::string command) {
     std::istringstream args(arguments);
     args >> firstarg >> secondarg;
     
+    pos = arguments.find(' ',0);
+    std::string secondandbeyondarguments = (pos != arguments.length()) ? arguments.substr(pos+1) : "";
+    
     if (opcode == "print") { // print out a string
         std::cout << "OUT: " << arguments << std::endl;
     } else if (opcode == "summary") { // print out a summary of the network
         printSummary("OUT: ");
     } else if (opcode == "stats") {
         printStats("OUT: ");
+    } else if (opcode == "newchild") {
+        newChild(firstarg, secondandbeyondarguments); /// @todo potentially perform some type of sanitization on secondandbeyondarguments
     } else if (opcode == "save") { // persists the configuration to the output file
         saveConfiguration();
     } else if (opcode == "debug") {
@@ -140,9 +159,17 @@ bool Host::runCommand(std::string command) {
 }
 
 
+void Host::newChild(std::string name, std::string invocation) {
+    std::cout << "OUT: " << "Adding new child..." << std::endl;
+    Child c(invocation);
+    children.insert(std::pair<std::string, Child>(name, c));
+}
+
 void Host::saveConfiguration() {
     std::ofstream configfile(configpath);
-    // for (double w : neuralnet.getWeights()) weightsfile << w << " ";
+    configfile << "# Children:" << std::endl;
+    for (std::pair<std::string, Child> child : children) configfile << child.first << " " << child.second.invocation << std::endl;
+    configfile << std::endl << "# I/O mappings:" << std::endl;
     configfile.close();
     
     std::cout << "OUT: " << "System configuration succesfully saved" << std::endl;
@@ -152,9 +179,23 @@ void Host::saveConfiguration() {
 void Host::readConfigFile() {
     std::ifstream filestream(configpath);
     std::string line;
-    int linenum = 0;
+    int section = 0;
     while (std::getline(filestream, line)) {
-        std::istringstream iss(line);
+        if (line[0] != '#') { // ignore comments
+			if (line.length() > 0) { // check blank lines
+                std::istringstream iss(line);
+        
+                if (section == 0) {
+                    std::string::size_type pos = line.find(' ',0);
+                    std::string invocation = (pos != line.length()) ? line.substr(pos+1) : "";
+                    std::string name = line.substr(0,pos);
+                    Child c(invocation);
+                    children.insert(std::pair<std::string, Child>(name, c));
+                }
+            } else {
+                section++;
+            }
+        }
         // if (linenum == 0) { // inputs
         //             std::string name;
         //             while (iss >> name) {
@@ -173,7 +214,6 @@ void Host::readConfigFile() {
         //                 neuralnet.addLayerBeforeOutputLayer(numNeurons, numInputsPerNeuron);
         //             }
         //         }
-        linenum++;
     }
     // if (linenum < 3) {
         // std::cerr << "ERROR: Malformed structure file!";

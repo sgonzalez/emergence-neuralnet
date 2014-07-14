@@ -5,7 +5,9 @@ This project introduces an extremely flexible, scalable, and easy-to-use tool fo
 To compile, just run ```build.sh``` from the root directory to compile everything, or ```make``` from each child program directory individually. There are no weird dependencies. However, I have not attempted to compile this on Windows and can't guarantee that everything will work "out of the box".
 
 ### Licensing
-The code for Emergence is hereby released under the GNU General Public License v2. Specific terms are available in the ```LICENSE``` file. Essentially, Emergence cannot be used in commercial (i.e. paid) software, uses of Emergence must retain attribution, and modifications to Emergence must be re-released into open-source under the same license.
+The code for Emergence is hereby released under the GNU General Public License (GPL) v2. Specific terms are available in the ```LICENSE``` file. Essentially, Emergence cannot be used in commercial (i.e. paid) software, uses of Emergence must retain attribution, and modifications to Emergence must be re-released into open-source under the same license. If you would like to use emergence in a commercial software distribution, feel free to contact me at slgonzalez (at) me (dot) com.
+
+### Example Application
 
 ---------------------------------------
 
@@ -34,6 +36,7 @@ THIS SHOULD CHANGE TO BE BETTER!!!! WHAT IF OUTPUTS ARE IN DIFFERENT ORDER OR HA
 * N```start```: starts/continues execution of the entire network
 * N```summary```: prints out a summary of the current structure of the network
 * N```stats```: prints out xxxxxx
+* N```newchild name INVOCATION```: adds a new child to be managed by the cooordinator, referenced by ```name``` and run by calling ```INVOCATION``` (note:  be careful when using this command from an external program, ```INVOCATION``` is *not* sanitized to grant you the ability to write your own children). Make sure that the child is set to run without a REPL. As a convention, either use absolute paths for files, or use paths relative to the coordinator.
 * ```save```: saves the system's configuration to the persistence file
 * N```runcommand child COMMAND```
 
@@ -48,7 +51,11 @@ All child processes have to support these commands to be supported by the coordi
 
 
 ## Child Feedforward
-A standard multilayer perceptron neural network. You can quickly try out this component by running ```./feedforward -C ../examples/test.commands ../examples/test.structure ../examples/test.weights``` from within the ```child_feedforward``` directory.
+A standard multilayer perceptron neural network. You can quickly try out this component by running:
+
+    ./feedforward -C ../examples/test.commands ../examples/test.structure ../examples/test.weights
+
+from within the ```child_feedforward``` directory.
 
 ### Notes
 * All layers are fully connected (i.e. in every neuron in a layer has a connecting dendrite to each neuron in the upstream layer). Every pair of adjacent layers forms a fully-connected, bipartite graph.
@@ -63,9 +70,9 @@ A standard multilayer perceptron neural network. You can quickly try out this co
 * ```randomize```: rerandomizes all the weights
 * ```zeroweights```: sets all the weights to zero
 * ```layeradd index numneurons```: adds a hidden layer to the network with ```numneurons``` neurons at ```index```
-* ```layerremove index```: 
-* ```inputadd name```: 
-* ```inputremove name```: 
+* ```layerremove index```: removes the hidden layer at ```index```
+* ```inputadd name```: adds a new input to the neural network named ```name```, names with weird characters may result in undefined behavior (stick with alphanumeric names for now)
+* ```inputremove name```: removes the input named ```name``` from the neural network
 * N```inputbulkadd name quantity```: 
 * N```inputbulkremove name```: 
 * ```outputadd name```: adds a new output neuron

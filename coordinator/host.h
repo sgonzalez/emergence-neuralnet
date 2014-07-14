@@ -7,15 +7,25 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <map>
 #include <sstream>
 #include <unistd.h>
 
+struct Child {
+    std::string invocation;
+    Child(std::string invocation) : invocation(invocation) {}
+};
+
 /// Host coordinates various child processes and vends command functionality, this is the main class. Only one instance of this should be running within the program.
 class Host {
+    std::map<std::string, Child> children;
     
     char *configpath;
     
     void readConfigFile(); ///< read in the configuration from an existing file that is accessible
+    
+    void newChild(std::string name, std::string invocation); ///< adds a new child to to be managed, referenced by name, called by invocation
+    
 public:
     Host(char *configpath);
     
