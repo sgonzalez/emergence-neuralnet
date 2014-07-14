@@ -1,0 +1,21 @@
+# I am a comment
+print Running commands...
+reset
+inputadd x
+inputadd y
+outputadd a
+outputadd b
+layeradd 1 10
+summary
+stats
+inputadd z
+outputremove a
+inputremove y
+inputadd w
+outputadd c
+outputadd d
+layerremove 1
+summary
+stats
+save
+print Finished
