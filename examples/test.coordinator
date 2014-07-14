@@ -1,7 +1,7 @@
 # Children:
-child1 ../child_feedforward/feedforward ../child_feedforward/feedforward -c ../examples/test.structure ../examples/test.weights 
+../child_feedforward/feedforward ../child_feedforward/feedforward -c ../examples/test.structure ../examples/test.weights 
 
 # I/O mappings:
 
-# DSJFKLFJLSDK
-targetRunInterval 0.1
+# Parameters:
+targetUpdateInterval 0.1

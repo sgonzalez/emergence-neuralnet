@@ -296,6 +296,9 @@ void Host::saveConfiguration() {
         configfile << std::endl;
     }
     configfile << std::endl << "# I/O mappings:" << std::endl;
+    ////// TODO save i/o mappings
+    configfile << std::endl << "# Parameters:" << std::endl;
+    configfile << "targetUpdateInterval " << targetUpdateInterval << std::endl;
     configfile.close();
     
     std::cout << "OUT: " << "System configuration succesfully saved" << std::endl;
@@ -327,6 +330,14 @@ void Host::readConfigFile() {
                     }
                     Child c(first, tokens);
                     children.insert(std::pair<std::string, Child>(name, c));
+                } else if (section == 1) {
+                    
+                } else if (section == 2) {
+                    std::string parameter;
+                    iss >> parameter;
+                    if (parameter == "targetUpdateInterval") {
+                        iss >> targetUpdateInterval;
+                    }
                 }
             } else {
                 section++;
