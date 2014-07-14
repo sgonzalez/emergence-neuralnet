@@ -8,11 +8,12 @@ To compile, just run ```build.sh``` from the root directory to compile everythin
 The code for Emergence is hereby released under the GNU General Public License (GPL) v2. Specific terms are available in the ```LICENSE``` file. Essentially, Emergence cannot be used in commercial (i.e. paid) software, uses of Emergence must retain attribution, and modifications to Emergence must be re-released into open-source under the same license. If you would like to use emergence in a commercial software distribution, feel free to contact me at slgonzalez (at) me (dot) com.
 
 ### Example Application
+An example application has been included and fully configured for you to try out.
 
 ---------------------------------------
 
 ## Coordinator
-The coordinator (also called the command process) manages each child process and coordinates input/output funneling and network updates. Interprocess data communication is achieved through the use of ```/tmp``` files. These files are managed by the coordinator. The coordinator uses a user specified file to store information, much like the feedforward child process has structure and weight files. The coordinator is capable of generating oscillatory inputs and propagating global inputs.
+The coordinator (also called the command process) manages each child process and coordinates input/output funneling and network updates. Interprocess data communication is achieved through the use of ```/tmp``` files (most systems mount ```/tmp``` to RAM instead of disk). These files are managed by the coordinator. The coordinator uses a user specified file to store information, much like the feedforward child process has structure and weight files. The coordinator is capable of generating oscillatory inputs and propagating global inputs.
 
 ### XPC File Format
 Each data communication file uses the following format to communicate data:
@@ -31,14 +32,25 @@ THIS SHOULD CHANGE TO BE BETTER!!!! WHAT IF OUTPUTS ARE IN DIFFERENT ORDER OR HA
 
 ### Coordinator Commands
 * ```quit``` or ```q```: quits the REPL
-* N```print STRING```: prints out a string (the remainder of the line)
+* ```print STRING```: prints out a string (the remainder of the line)
 * N```pause```: pauses execution of the entire network, paused by default
-* N```start```: starts/continues execution of the entire network
+* N```run```: runs the system with the current configuration, must run start first. Does not return. Use SIGINT (i.e. ctrl-c) to stop.
+* ```targetinterval seconds```: sets the system's target update interval to ```seconds```
+* ```updateall```: updates all the children, useful for testing
+* ```start```: (re)starts execution of the entire network's processes
 * N```summary```: prints out a summary of the current structure of the network
-* N```stats```: prints out xxxxxx
-* N```newchild name INVOCATION```: adds a new child to be managed by the cooordinator, referenced by ```name``` and run by calling ```INVOCATION``` (note:  be careful when using this command from an external program, ```INVOCATION``` is *not* sanitized to grant you the ability to write your own children). Make sure that the child is set to run without a REPL. As a convention, either use absolute paths for files, or use paths relative to the coordinator.
+* ```stats```: prints out various network statistics
+* ```addchild name INVOCATION```: adds a new child to be managed by the cooordinator, referenced by ```name``` and run by calling ```INVOCATION``` (note:  be careful when using this command from an external program, ```INVOCATION``` is *not* sanitized to grant you the ability to write your own children). Make sure that the child is set to run without a REPL. As a convention, either use absolute paths for files, or use paths relative to the coordinator. Make sure that you are invoking the program as a child.
+* ```removechild name```: removes the child with ```name```
 * ```save```: saves the system's configuration to the persistence file
 * N```runcommand child COMMAND```
+
+### Typical Command Flow
+
+    newchild neural1 ../child_feedforward/feedforward -c ../examples/test.structure ../examples/test.weights 
+    targetinterval 0.1
+    start
+    run
 
 ### Child Process Commands
 All child processes have to support these commands to be supported by the coordinator:

@@ -41,6 +41,8 @@ void engage(std::string structureFile, std::string weightsFile, std::string comm
     
     if (!child) {
         nn.runWithREPL();
+    } else {
+        nn.runAsChild();
     }
 }
 

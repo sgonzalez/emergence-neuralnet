@@ -5,6 +5,8 @@
 #include "host.h"
 
 Host::Host(char *nconfigpath) {
+    started = false;
+    targetUpdateInterval = 1.f;
     
     configpath = nconfigpath;
     
@@ -66,9 +68,16 @@ void Host::printSummary(std::string prefix) {
     if (children.size() == 0) {
         std::cout << prefix << "  none" << std::endl;
     } else {
-        for (std::pair<std::string, Child> child : children)
-            std::cout << prefix << "  " << child.first << std::endl;
+        for (std::pair<std::string, Child> child : children) {
+            if (started && pids.find(child.first) != pids.end())
+                std::cout << prefix << "  " << child.first << " (" << pids[child.first] << ")" << std::endl;
+            else
+                std::cout << prefix << "  " << child.first << std::endl;
+        }
     }
+    std::cout << prefix << "Target Update Interval: " << std::endl;
+    std::cout << prefix << "  " << targetUpdateInterval << " s" << std::endl;
+    
     // std::cout << prefix << "Outputs:" << std::endl;
     //     if (neuralnet.getOutputs().size() > 0) {
     //         std::cout << prefix << "  " << neuralnet.getLayers().size() << ": (x" << neuralnet.getOutputs().size() << ") ";
@@ -144,8 +153,18 @@ bool Host::runCommand(std::string command) {
         printSummary("OUT: ");
     } else if (opcode == "stats") {
         printStats("OUT: ");
-    } else if (opcode == "newchild") {
-        newChild(firstarg, secondandbeyondarguments); /// @todo potentially perform some type of sanitization on secondandbeyondarguments
+    } else if (opcode == "addchild") {
+        addChild(firstarg, secondandbeyondarguments); /// @todo potentially perform some type of sanitization on secondandbeyondarguments
+    } else if (opcode == "removechild") {
+        removeChild(firstarg);
+    } else if (opcode == "start") {
+        start();
+    } else if (opcode == "run") {
+        run();
+    } else if (opcode == "updateall") {
+        updateChildren();
+    } else if (opcode == "targetinterval") {
+        targetUpdateInterval = std::stof(firstarg);
     } else if (opcode == "save") { // persists the configuration to the output file
         saveConfiguration();
     } else if (opcode == "debug") {
@@ -158,17 +177,101 @@ bool Host::runCommand(std::string command) {
     return true;
 }
 
+void Host::updateChildren() {
+    if (started) {
+        for (std::pair<std::string, pid_t> child : pids) {
+            kill(child.second, SIGUSR1);
+        }
+    }
+}
 
-void Host::newChild(std::string name, std::string invocation) {
+void Host::run() {
+    if (!started) {
+        std::cerr << "Must run start before run!" << std::endl;
+        return;
+    }
+    
+    while (1) {
+        updateChildren();
+        sleep(targetUpdateInterval);
+    }
+}
+
+void Host::start() {
+    if (started) {
+        std::cout << "OUT: Restarting child processes..." << std::endl;
+        for (std::pair<std::string, pid_t> pid : pids) {
+            kill(pid.second, SIGTERM); // kill the existing child
+        }
+        pids.clear();
+    }
+    
+    started = true;
+    
+    for (std::pair<std::string, Child> child : children) {
+        pid_t pid = fork();
+        pids.insert(std::pair<std::string, pid_t>(child.first, pid)); // save pid
+
+        int fd[2]; // file descriptors
+        pipe(fd);
+
+        if (pid == 0) { // CHILD PROCESS
+            
+            // Reassign stdout to fds[1] end of pipe. (i.e. send child output to parent)
+            dup2(fd[0], 0);
+            // Not going to read in this child process, so we can close this end of the pipe. (i.e. don't send parent input to child)
+            close(fd[1]);
+            
+            // convert to proper c format
+            int argc = child.second.argv.size();
+            char **argv = new char*[1024];
+            for (size_t a=0; a < argc; ++a) argv[a] = const_cast<char*>(child.second.argv[a].c_str());
+            argv[argc] = NULL;
+            
+            int rc = execvp(child.second.invocation.c_str(), argv);
+            if (rc == -1) {
+                if (errno == 2) {
+                    std::cerr << "Child process failed to start. No such file or directory.";
+                } else {
+                    fprintf(stderr, "Child process failed to start. %d\n", errno);
+                }
+            }
+            perror("command error");
+            exit(1);
+        } else { // PARENT PROCESS
+            std::cout << "OUT: " << "Starting child " << child.first << "..." << std::endl;
+        }
+    }
+}
+
+void Host::addChild(std::string name, std::string invocation) {
     std::cout << "OUT: " << "Adding new child..." << std::endl;
-    Child c(invocation);
+    std::istringstream iss(invocation);
+    std::string first;
+    iss >> first;
+    std::string token;
+    std::vector<std::string> tokens;
+    tokens.push_back(first);
+    while (iss >> token) {
+        tokens.push_back(token);
+    }
+    Child c(first, tokens);
     children.insert(std::pair<std::string, Child>(name, c));
+}
+
+void Host::removeChild(std::string name) {
+    children.erase(name);
 }
 
 void Host::saveConfiguration() {
     std::ofstream configfile(configpath);
     configfile << "# Children:" << std::endl;
-    for (std::pair<std::string, Child> child : children) configfile << child.first << " " << child.second.invocation << std::endl;
+    for (std::pair<std::string, Child> child : children) {
+        // configfile << child.first << " " << child.second.invocation << " ";
+        for (std::string tok : child.second.argv)
+            configfile << tok << " ";
+        configfile << std::endl;
+    }
     configfile << std::endl << "# I/O mappings:" << std::endl;
     configfile.close();
     
@@ -189,7 +292,17 @@ void Host::readConfigFile() {
                     std::string::size_type pos = line.find(' ',0);
                     std::string invocation = (pos != line.length()) ? line.substr(pos+1) : "";
                     std::string name = line.substr(0,pos);
-                    Child c(invocation);
+                    
+                    std::istringstream iss(invocation);
+                    std::string first;
+                    iss >> first;
+                    std::string token;
+                    std::vector<std::string> tokens;
+                    tokens.push_back(first);
+                    while (iss >> token) {
+                        tokens.push_back(token);
+                    }
+                    Child c(first, tokens);
                     children.insert(std::pair<std::string, Child>(name, c));
                 }
             } else {

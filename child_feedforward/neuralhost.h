@@ -9,6 +9,7 @@
 #include <string>
 #include <sstream>
 #include <unistd.h>
+#include <signal.h>
 
 #include "neuralnet.h"
 
@@ -21,10 +22,15 @@ class NeuralHost {
     
     void readStructureFile(); ///< read in the structure from an existing file that is accessible
     void readWeightsFile(); ///< read in the weights from an existing file that is accessible, must be called AFTER readStructureFile()
+    
+    void runAsChildInterruptHandler();
+    
+    void update();
 public:
     NeuralHost(char *structurepath, char *weightspath);
     
     void runWithREPL();
+    void runAsChild();
     
     bool runCommands(char *filepath); ///< sequentially run the commands in the provided file
     bool runCommand(std::string command);

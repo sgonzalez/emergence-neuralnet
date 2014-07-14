@@ -1,4 +1,4 @@
 # Children:
-child1 ./feedforward -c -C ../examples/test.commands ../examples/test.structure ../examples/test.weights
+child1 ../child_feedforward/feedforward ../child_feedforward/feedforward -c ../examples/test.structure ../examples/test.weights 
 
 # I/O mappings:

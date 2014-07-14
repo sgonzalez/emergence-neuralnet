@@ -26,6 +26,55 @@ NeuralHost::NeuralHost(char *nstructurepath, char *nweightspath) {
     }
 }
 
+void NeuralHost::update() {
+    std::cout << "YO DAWG!!" << std::endl;
+}
+
+/* When a SIGUSR1 signal arrives, set this variable. */
+volatile sig_atomic_t usr_interrupt_1 = 0;
+volatile sig_atomic_t usr_interrupt_2 = 0;
+void synch_signal(int sig) { 
+    if (sig == SIGUSR1)
+        usr_interrupt_1 = 1;
+    else if (sig == SIGUSR2)
+        usr_interrupt_2 = 1;
+}
+
+
+void NeuralHost::runAsChild() {
+    runAsChildInterruptHandler();
+}
+
+void NeuralHost::runAsChildInterruptHandler() {
+    struct sigaction usr_action;
+    sigset_t block_mask;
+    pid_t child_id;
+
+    /* Establish the signal handler. */
+    sigfillset (&block_mask);
+    usr_action.sa_handler = synch_signal;
+    usr_action.sa_mask = block_mask;
+    usr_action.sa_flags = 0;
+    sigaction (SIGUSR1, &usr_action, NULL);
+
+    sigset_t mask, oldmask;
+    /* Set up the mask of signals to temporarily block. */
+    sigemptyset (&mask);
+    sigaddset (&mask, SIGUSR1);
+
+    /* Wait for a signal to arrive. */
+    sigprocmask (SIG_BLOCK, &mask, &oldmask);
+    while (!usr_interrupt_1)
+        sigsuspend (&oldmask);
+    sigprocmask (SIG_UNBLOCK, &mask, NULL);
+
+    /* Now continue execution. */
+    usr_interrupt_1 = 0;
+    update();
+
+    runAsChildInterruptHandler();
+}
+
 void NeuralHost::runWithREPL() {
     std::cout << "Child REPL:" << std::endl;
     std::string line;
@@ -167,7 +216,6 @@ bool NeuralHost::runCommand(std::string command) {
     
     return true;
 }
-
 
 void NeuralHost::saveNetwork() {
     // save structure
