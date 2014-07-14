@@ -180,14 +180,31 @@ bool Host::runCommand(std::string command) {
 }
 
 void Host::childRunCommand(std::string name, std::string command) {
+    if (!started) {
+        std::cerr << "Must run start before run!" << std::endl;
+        return;
+    }
     
+    if (pids.find(name) != pids.end()) { // the child exists
+        // write command to tmp file
+        std::ofstream pidfile("/tmp/emergence-neuralnet/" + std::to_string(pids[name]) + ".command");
+        pidfile << command;
+        pidfile.close();
+        
+        kill(pids[name], SIGUSR2); // send signal
+    } else {
+        std::cerr << "No such child, or child process is not running!" << std::endl;
+    }
 }
 
 void Host::updateChildren() {
-    if (started) {
-        for (std::pair<std::string, pid_t> child : pids) {
-            kill(child.second, SIGUSR1);
-        }
+    if (!started) {
+        std::cerr << "Must run start before run!" << std::endl;
+        return;
+    }
+
+    for (std::pair<std::string, pid_t> child : pids) {
+        kill(child.second, SIGUSR1);
     }
 }
 
