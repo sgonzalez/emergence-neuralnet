@@ -183,6 +183,7 @@ void NeuralNet::addLayer(int layerIndex, int numNeurons) { // note: here, layer 
         }
         layers[layerIndex].neurons[j].weights.push_back(bias); // restore bias
     }
+    layers[layerIndex].numInputsPerNeuron = numNeurons; // update preexisting layer number of inputs
 }
 
 void NeuralNet::removeLayer(int layerIndex) { // note: here, layer is 1-indexed relative to layers

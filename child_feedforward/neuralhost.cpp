@@ -3,8 +3,6 @@
 /////////////////////////
 
 #include "neuralhost.h"
-#include <stdlib.h>
-#include <time.h>
 
 NeuralHost::NeuralHost(char *nstructurepath, char *nweightspath) {
     srand(time(NULL)); // seed the prng
@@ -76,7 +74,7 @@ void NeuralHost::runAsChildInterruptHandler() {
 }
 
 void NeuralHost::runWithREPL() {
-    std::cout << "Child REPL:" << std::endl;
+    std::cout << "\033[0;37mChild REPL:\033[0m" << std::endl;
     std::string line;
     std::cout << "\033[0;37m%\033[0m ";
     while (std::getline(std::cin, line)) {
@@ -207,14 +205,36 @@ bool NeuralHost::runCommand(std::string command) {
         neuralnet.addLayer(std::stoi(firstarg), std::stoi(secondarg));
     } else if (opcode == "layerremove") {
         neuralnet.removeLayer(std::stoi(firstarg));
+    } else if (opcode == "timepropagation") {
+        timePropagation();
     } else if (opcode == "debug") {
         std::cout << "DEBUG: not implemented in this distribution, not required, no standardized functionality" << std::endl;
+        // for (NeuronLayer layer : neuralnet.getLayers())
+            // std::cout << layer.numNeurons << " " << layer.numInputsPerNeuron << std::endl;
     } else {
         std::cerr << "\\/: unknown opcode \"" << opcode << "\"" << std::endl;
         return false;
     }
     
     return true;
+}
+
+void NeuralHost::timePropagation() {
+    static const int iterations = 100;
+    int numInputs = neuralnet.getInputs().size();
+    clock_t begin = clock();
+    for (int i = 0; i < iterations; i++) {
+        std::vector<double> inputs;
+        for (int j = 0; j < numInputs; j++) {
+            inputs.push_back(randomClamped());
+        }
+        neuralnet.propagate(inputs);
+    }
+    clock_t end = clock();
+    double elapsedSeconds = (double(end - begin) / CLOCKS_PER_SEC) / iterations;
+    std::cout << "OUT: " << "Neural network propagation time: ";
+    printf("%.4lf seconds / %.4lf milliseconds", elapsedSeconds, elapsedSeconds*1000);
+    std::cout << std::endl;
 }
 
 void NeuralHost::saveNetwork() {

@@ -94,6 +94,7 @@ from within the ```child_feedforward``` directory.
 * ```outputremove name```: removes an output neuron
 * ```neuronadd index numneurons```: adds ```numneurons``` neurons to the layer at ```index```
 * ```neuronremove index numneurons```: removes ```numneurons``` neurons from the layer at ```index```
+* ```timepropagation```: profiles the neural network's propagation time (i.e. how long it takes for outputs to change based on the inputs). Actual propagation is run many times with random inputs to ensure a good number.
 
 
 

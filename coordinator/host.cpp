@@ -22,7 +22,7 @@ Host::Host(char *nconfigpath) {
 }
 
 void Host::runWithREPL() {
-    std::cout << "Coordinator REPL:" << std::endl;
+    std::cout << "\033[0;37mCoordinator REPL:\033[0m" << std::endl;
     std::string line;
     std::cout << "\033[0;37m%\033[0m ";
     while (std::getline(std::cin, line)) {

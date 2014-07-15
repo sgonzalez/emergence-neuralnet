@@ -8,10 +8,14 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <ctime>
+#include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 #include <signal.h>
 
 #include "neuralnet.h"
+#include "utils.h"
 
 /// NeuralHost manages the multi-layer perceptron (NeuralNet instance), this is the main class. Only one instance of this should be running within the program.
 class NeuralHost {
@@ -37,6 +41,7 @@ public:
     
     void printSummary(std::string prefix);
     void printStats(std::string prefix);
+    void timePropagation();
     
     void saveNetwork(); ///< saves the network structure and weights to structurepath and weightspath, respectively
     
