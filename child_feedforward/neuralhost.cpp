@@ -28,14 +28,28 @@ void NeuralHost::update() {
     std::cout << "YO DAWG!!" << std::endl;
 }
 
+void NeuralHost::runCoordinatorCommand() {
+    std::cout << std::endl;
+    pid_t mypid = getpid();
+    std::ifstream commandfile("/tmp/emergence-neuralnet/" + std::to_string(mypid) + ".command");
+    std::string command;
+    std::getline(commandfile, command);
+    commandfile.close();
+    
+    runCommand(command);
+    
+    std::cout << "\033[0;37m%\033[0m ";
+}
+
 /* When a SIGUSR1 signal arrives, set this variable. */
 volatile sig_atomic_t usr_interrupt_1 = 0;
 volatile sig_atomic_t usr_interrupt_2 = 0;
-void synch_signal(int sig) { 
-    if (sig == SIGUSR1)
+void synch_signal(int sig) {
+    if (sig == SIGUSR1) {
         usr_interrupt_1 = 1;
-    else if (sig == SIGUSR2)
+    } else if (sig == SIGUSR2) {
         usr_interrupt_2 = 1;
+    }
 }
 
 
@@ -44,33 +58,45 @@ void NeuralHost::runAsChild() {
 }
 
 void NeuralHost::runAsChildInterruptHandler() {
-    struct sigaction usr_action;
-    sigset_t block_mask;
-    pid_t child_id;
+    // struct sigaction usr_action;
+    // sigset_t block_mask;
+    // pid_t child_id;
 
-    /* Establish the signal handler. */
-    sigfillset (&block_mask);
-    usr_action.sa_handler = synch_signal;
-    usr_action.sa_mask = block_mask;
-    usr_action.sa_flags = 0;
-    sigaction (SIGUSR1, &usr_action, NULL);
+/// @todo maybe this below code block only needs to be called once, maybe put in runAsChild
+
+    // Establish the signal handler
+    signal(SIGUSR1, synch_signal);
+    signal(SIGUSR2, synch_signal);
+    // sigfillset (&block_mask);
+    // usr_action.sa_handler = synch_signal;
+    // usr_action.sa_mask = block_mask;
+    // usr_action.sa_flags = 0;
+    // sigaction (SIGUSR1, &usr_action, NULL);
+    // sigaction (SIGUSR2, &usr_action, NULL);
 
     sigset_t mask, oldmask;
-    /* Set up the mask of signals to temporarily block. */
+    // Set up the mask of signals to temporarily block
     sigemptyset (&mask);
     sigaddset (&mask, SIGUSR1);
+    sigaddset (&mask, SIGUSR2);
 
-    /* Wait for a signal to arrive. */
+    // Wait for a signal to arrive
     sigprocmask (SIG_BLOCK, &mask, &oldmask);
-    while (!usr_interrupt_1)
+    while (!usr_interrupt_1 && !usr_interrupt_2)
         sigsuspend (&oldmask);
     sigprocmask (SIG_UNBLOCK, &mask, NULL);
 
-    /* Now continue execution. */
-    usr_interrupt_1 = 0;
-    update();
+    // Check which interrupt and continue execution
+    if (usr_interrupt_1) {
+        usr_interrupt_1 = 0;
+        update();
+    }
+    if (usr_interrupt_2) {
+        usr_interrupt_2 = 0;
+        runCoordinatorCommand();
+    }
 
-    runAsChildInterruptHandler();
+    runAsChildInterruptHandler(); // wait for next interrupt
 }
 
 void NeuralHost::runWithREPL() {

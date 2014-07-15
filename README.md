@@ -34,7 +34,7 @@ THIS SHOULD CHANGE TO BE BETTER!!!! WHAT IF OUTPUTS ARE IN DIFFERENT ORDER OR HA
 ### Coordinator Commands
 * ```quit``` or ```q```: quits the REPL
 * ```print STRING```: prints out a string (the remainder of the line)
-* ```run```: runs the system with the current configuration, must run ```start``` first. Does not return. Use SIGINT (i.e. <kbd>ctrl</kbd>-<kbd>c</kbd>) to stop.
+* ```run```: runs the system with the current configuration, must run ```start``` first. Does not return. Use SIGINT (i.e. <kbd>ctrl</kbd>+<kbd>c</kbd>) to stop.
 * ```targetinterval seconds```: sets the system's target update interval to ```seconds```
 * ```updateall```: updates all the children, useful for testing
 * ```start```: (re)starts execution of the entire network's processes
@@ -43,7 +43,7 @@ THIS SHOULD CHANGE TO BE BETTER!!!! WHAT IF OUTPUTS ARE IN DIFFERENT ORDER OR HA
 * ```addchild name INVOCATION```: adds a new child to be managed by the cooordinator, referenced by ```name``` and run by calling ```INVOCATION``` (note:  be careful when using this command from an external program, ```INVOCATION``` is *not* sanitized to grant you the ability to write your own children). Make sure that the child is set to run without a REPL. As a convention, either use absolute paths for files, or use paths relative to the coordinator. Make sure that you are invoking the program as a child.
 * ```removechild name```: removes the child with ```name```
 * ```save```: saves the system's configuration to the persistence file
-* N```runcommand name COMMAND```
+* ```runcommand name COMMAND```: run the specified command on the child referenced by ```name```
 
 ### Typical Command Flow
 Here is a sample sequence of commands that can be used with the coordinator, either in the REPL or a command file. Note how there are no commands after ```run``` since control will never reach them.
@@ -100,6 +100,7 @@ from within the ```child_feedforward``` directory.
 
 ### TODO
 * Create new structure and weights files if they don't exist
+* DONE! Make children accept SIGUSR2 and read from tmp file to run commands
 * DONE! Think about and document command semantics (e.g. insertion strategies, what to do with weights, etc.)
 
 

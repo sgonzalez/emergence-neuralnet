@@ -192,6 +192,7 @@ void Host::childRunCommand(std::string name, std::string command) {
         pidfile.close();
         
         kill(pids[name], SIGUSR2); // send signal
+        kill(pids[name], SIGUSR1); /// @todo this should not be required, but it solves a problem that SIGUSR2 won't arrive until another SIGUSR1 arrives
     } else {
         std::cerr << "No such child, or child process is not running!" << std::endl;
     }
@@ -223,10 +224,7 @@ void Host::run() {
 void Host::start() {
     if (started) {
         std::cout << "OUT: Restarting child processes..." << std::endl;
-        for (std::pair<std::string, pid_t> pid : pids) {
-            kill(pid.second, SIGTERM); // kill the existing child
-        }
-        pids.clear();
+        killChildren();
     }
     
     started = true;
@@ -265,6 +263,13 @@ void Host::start() {
             std::cout << "OUT: " << "Starting child " << child.first << "..." << std::endl;
         }
     }
+}
+
+void Host::killChildren() {
+    for (std::pair<std::string, pid_t> pid : pids) {
+        kill(pid.second, SIGTERM); // kill the existing child
+    }
+    pids.clear();
 }
 
 void Host::addChild(std::string name, std::string invocation) {

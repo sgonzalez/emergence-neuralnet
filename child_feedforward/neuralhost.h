@@ -28,7 +28,7 @@ class NeuralHost {
     void readWeightsFile(); ///< read in the weights from an existing file that is accessible, must be called AFTER readStructureFile()
     
     void runAsChildInterruptHandler();
-    
+    void runCoordinatorCommand();
     void update();
 public:
     NeuralHost(char *structurepath, char *weightspath);

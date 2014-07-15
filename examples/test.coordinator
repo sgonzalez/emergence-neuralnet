@@ -1,5 +1,5 @@
 # Children:
-../child_feedforward/feedforward ../child_feedforward/feedforward -c ../examples/test.structure ../examples/test.weights 
+net1 ../child_feedforward/feedforward -c ../examples/test.structure ../examples/test.weights 
 
 # I/O mappings:
 

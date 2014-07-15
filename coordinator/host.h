@@ -47,6 +47,8 @@ public:
     void start();
     void run();
     
+    void killChildren();
+    
     bool runCommands(char *filepath); ///< sequentially run the commands in the provided file
     bool runCommand(std::string command);
     

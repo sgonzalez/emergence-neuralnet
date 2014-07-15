@@ -18,16 +18,17 @@ static void show_usage(std::string name) {
         << std::endl;
 }
 
+Host *host;
 
 void engage(std::string configFile, std::string commandsFile, bool child) {
     // initialize host
-    Host host = Host(realpath(configFile.c_str(), NULL));
+    host = new Host(realpath(configFile.c_str(), NULL));
     
     if (commandsFile != "") { // did the user supply a commands file
         char* commandspath = realpath(commandsFile.c_str(), NULL);
         if (access(commandspath, R_OK) != -1) { // make sure the commands file is accessible
             // run commands
-            if (!host.runCommands(commandspath)) {
+            if (!host->runCommands(commandspath)) {
                 std::cerr << "failed to run commands" << std::endl;
                 exit(1);
             } else {
@@ -41,16 +42,20 @@ void engage(std::string configFile, std::string commandsFile, bool child) {
     }
     
     if (!child) {
-        host.runWithREPL();
+        host->runWithREPL();
     }
 }
 
 bool keepTmp = false;
 
 void cleanUp() {
+    std::cout << std::endl << "Killing children..." << std::endl;
+    host->killChildren();
+    delete host;
+    
     if (!keepTmp) {
         system("exec rm -rf /tmp/emergence-neuralnet");
-        std::cout << std::endl << "Deleting /tmp/emergence-neuralnet..." << std::endl;
+        std::cout << "Deleting /tmp/emergence-neuralnet..." << std::endl;
     }
 }
 
