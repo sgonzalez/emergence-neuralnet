@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) { // main almost exclusively does parameter pro
         }
     }
     
-    system("exec mkdir /tmp/emergence-neuralnet");
+    system("exec mkdir -p /tmp/emergence-neuralnet");
     
     atexit(cleanUp);
     signal(SIGINT, intHandler);

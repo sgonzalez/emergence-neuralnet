@@ -137,6 +137,8 @@ void Host::printStats(std::string prefix) {
 }
 
 bool Host::runCommand(std::string command) {
+    if (command == "") return true;
+    
     std::string::size_type pos = command.find(' ',0);
     std::string arguments = (pos != command.length()) ? command.substr(pos+1) : "";
     std::string opcode = command.substr(0,pos);
@@ -205,14 +207,16 @@ void Host::childRunCommand(std::string name, std::string command) {
 }
 
 void Host::sendMappings() {
+    std::cout << "OUT: Sending I/O mappings..." << std::endl;
     for (std::pair<std::string, std::map<std::string, std::map<std::string, std::string>>> childentry : systemInputMappings) {
-        childRunCommand(childentry.first, "setoutputfile /tmp/emergence-neuralnet/" + childentry.first + ".output");
+        std::stringstream commandsStream; // stream to batch commands together
+        commandsStream << "setoutputfile /tmp/emergence-neuralnet/" + childentry.first + ".output" << std::endl;
         for (std::pair<std::string, std::map<std::string, std::string>> fileentry : systemInputMappings[childentry.first]) {
             for (std::pair<std::string, std::string> mapping : systemInputMappings[childentry.first][fileentry.first]) {
-                childRunCommand(childentry.first, "addinputmapping /tmp/emergence-neuralnet/" + fileentry.first + ".output" + " " + mapping.first + " " + mapping.second);
-                /// @todo batch these commands together, eventually
+                commandsStream << "addinputmapping /tmp/emergence-neuralnet/" + fileentry.first + ".output" + " " + mapping.first + " " + mapping.second << std::endl;
             }
         }
+        childRunCommand(childentry.first, commandsStream.str());
     }
     hasSentMappings = true;
 }
@@ -269,6 +273,7 @@ void Host::start() {
     if (started) {
         std::cout << "OUT: Restarting child processes..." << std::endl;
         killChildren();
+        hasSentMappings = false;
     }
     
     started = true;

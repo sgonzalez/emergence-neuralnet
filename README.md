@@ -59,9 +59,8 @@ Here is a sample sequence of commands that can be used with the coordinator, eit
 All child processes have to support these commands to be supported by the coordinator:
 * ```quit``` or ```q```: quits the REPL
 * ```addinputmapping outputfile ouputname inputname``` maps an output from an XPC file to an input, unmapped / unfilled inputs default to zero
-* N```setoutputfile filepath```: sets the file where outputs are written (writeonly)
-* N```input name value```: sets a specific input
-* N```update```: update outputs
+* ```setoutputfile filepath```: sets the file where outputs are written (writeonly)
+* ```update```: update outputs
 
 
 ## Child Feedforward

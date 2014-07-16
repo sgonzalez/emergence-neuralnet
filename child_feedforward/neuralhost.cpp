@@ -25,26 +25,66 @@ NeuralHost::NeuralHost(char *nstructurepath, char *nweightspath) {
 }
 
 void NeuralHost::update() {
+    // Configure default inputs
     std::vector<double> inputs;
-    int size = neuralnet.getInputs().size();
+    std::vector<std::string> inputNames = neuralnet.getInputs();
+    int size = inputNames.size();
     for (int i = 0; i < size; i++) {
         inputs.push_back(0);
     }
     
-    //// TODO read the actual inputs from the mapped files jfasdlkfjaskl
+    // Read inputs
+    for (std::pair<std::string, std::map<std::string, std::string>> fileentry : inputMappings) {
+        // read input file
+        std::map<std::string, double> fileoutputs;
+        std::ifstream inputfile(fileentry.first);
+        std::string line;
+        while (std::getline(inputfile, line)) {
+			if (line.length() > 0) { // ignore blank lines
+                std::stringstream ss(line);
+                std::string first;
+                double second;
+                ss >> first >> second;
+                fileoutputs[first] = second;
+			}
+		}
+        inputfile.close();
+        
+        // set appropriate inputs
+        for (std::pair<std::string, std::string> otoi : fileentry.second) { // go through the mappings for this file
+           int pos = std::find(inputNames.begin(), inputNames.end(), otoi.second) - inputNames.begin(); // get the neural net's input index for the input name
+           if (pos < inputNames.size()) {
+               inputs[pos] = fileoutputs[otoi.first];
+           } else {
+               std::cerr << "No input named '" << otoi.second << "' exists." << std::endl;
+           }
+        }
+    }
+    
+    // Propagate and save outputs
+    std::vector<double> outputs = neuralnet.propagate(inputs);
+    std::vector<std::string> outputNames = neuralnet.getOutputs();
+    std::ofstream outputsfile(outputFile);
+    int i = 0;
+    for (double output : outputs) {
+        outputsfile << outputNames[i] << " " << output << std::endl;
+        i++;
+    }
+    outputsfile.close();
 }
 
 void NeuralHost::runCoordinatorCommand() {
-    std::cout << std::endl;
+    // std::cout << std::endl;
     pid_t mypid = getpid();
-    std::ifstream commandfile("/tmp/emergence-neuralnet/" + std::to_string(mypid) + ".command");
-    std::string command;
-    std::getline(commandfile, command);
-    commandfile.close();
+    // std::ifstream commandfile("/tmp/emergence-neuralnet/" + std::to_string(mypid) + ".command");
+    //     std::string command;
+    //     std::getline(commandfile, command);
+    //     commandfile.close();
+    //     
+    // runCommand(command);
+    runCommands(strdup(std::string("/tmp/emergence-neuralnet/" + std::to_string(mypid) + ".command").c_str())); // we are doing it this way to prevent data overwrite race conditions
     
-    runCommand(command);
-    
-    std::cout << "\033[0;37m%\033[0m ";
+    // std::cout << "\033[0;37m%\033[0m ";
 }
 
 /* When a SIGUSR1 signal arrives, set this variable. */
@@ -199,6 +239,8 @@ void NeuralHost::printStats(std::string prefix) {
 }
 
 bool NeuralHost::runCommand(std::string command) {
+    if (command == "") return true;
+    
     std::string::size_type pos = command.find(' ',0);
     std::string arguments = (pos != command.length()) ? command.substr(pos+1) : "";
     std::string opcode = command.substr(0,pos);
@@ -248,7 +290,7 @@ bool NeuralHost::runCommand(std::string command) {
         // for (NeuronLayer layer : neuralnet.getLayers())
             // std::cout << layer.numNeurons << " " << layer.numInputsPerNeuron << std::endl;
     } else {
-        std::cerr << "\\/: unknown opcode \"" << opcode << "\"" << std::endl;
+        std::cerr << "\\/: unknown opcode \"" << opcode << "\"" << std::endl; std::cerr << command;
         return false;
     }
     
