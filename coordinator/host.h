@@ -31,6 +31,8 @@ class Host {
     bool started;
     bool hasSentMappings; ///< have the I/O mappings been sent to the children
     
+    std::map<std::string, double> globalInputs;
+    
     char *configpath;
     
     double targetUpdateInterval; ///< in seconds

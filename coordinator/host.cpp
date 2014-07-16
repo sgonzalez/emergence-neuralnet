@@ -114,6 +114,13 @@ void Host::printStats(std::string prefix) {
         std::cout << prefix << "  " << children.size();
     }
     std::cout << std::endl;
+    std::cout << prefix << "I/O Mappings: " << std::endl;
+    if (systemInputMappings.size() == 0) {
+        std::cout << prefix << "  none";
+    } else {
+        std::cout << prefix << "  " << systemInputMappings.size();
+    }
+    std::cout << std::endl;
     // std::cout << prefix << "Neurons: " << std::endl;
     //     if (neuralnet.getLayers().size() > 0 || neuralnet.getOutputs().size() > 0) {
     //         int sum = 0;
@@ -360,6 +367,12 @@ void Host::saveConfiguration() {
         }
     }
     
+    configfile << std::endl << "# Global inputs:";
+    configfile << std::endl << "# Format: name value" << std::endl;
+    for (std::pair<std::string, double> input : globalInputs) {
+        configfile << input.first << " " << input.second << std::endl;
+    }
+    
     configfile << std::endl << "# Parameters:" << std::endl;
     configfile << "targetUpdateInterval " << targetUpdateInterval << std::endl;
     configfile.close();
@@ -397,7 +410,12 @@ void Host::readConfigFile() {
                     std::string outputfile, outputname, childname, mappedinput;
                     iss >> outputfile >> outputname >> childname >> mappedinput;
                     systemInputMappings[childname][outputfile][outputname] = mappedinput;
-                } else if (section == 2) { // PARAMETERS
+                } else if (section == 2) { // GLOBAL INPUTS
+                    std::string name;
+                    double value;
+                    iss >> name >> value;
+                    globalInputs[name] = value;
+                } else if (section == 3) { // PARAMETERS
                     std::string parameter;
                     iss >> parameter;
                     if (parameter == "targetUpdateInterval") {

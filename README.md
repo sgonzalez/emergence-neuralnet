@@ -8,35 +8,47 @@ To compile, just run ```build.sh``` from the root directory to compile everythin
 The code for Emergence is hereby released under the GNU General Public License (GPL) v2. Specific terms are available in the ```LICENSE``` file. Essentially, Emergence cannot be used in commercial (i.e. paid) software, uses of Emergence must retain attribution, and modifications to Emergence must be re-released into open-source under the same license. If you would like to use emergence in a commercial software distribution, feel free to contact me at slgonzalez (at) me (dot) com.
 
 ### Example Application
-An example application has been included and fully configured for you to try out.
+An example application has been included and fully configured for you to try out. To get started (assuming you have compiled everything), go to the repository's root directory and type the following commands:
+
+    cd coordinator
+    coordinator ../examples/test.coordinator
+    # The following should be typed within the coordinator REPL
+    start
+    summary
+    updateall
+
 
 ---------------------------------------
 
 ## Coordinator
-The coordinator (also called the command process) manages each child process and coordinates input/output funneling and network updates. Interprocess data communication is achieved through the use of ```/tmp``` files (most systems mount ```/tmp``` to RAM instead of disk). These files are managed by the coordinator. The coordinator uses a user specified file to store information, much like the feedforward child process has structure and weight files. The coordinator is capable of generating oscillatory inputs and propagating global inputs.
+The coordinator process manages each child process and coordinates input/output funneling and network updates. Interprocess communication (XPC) is achieved through the use of ```SIGUSR1```/```SIGUSR2``` kill signals and ```/tmp``` files (most systems mount ```/tmp``` to RAM instead of disk). These files are managed by the coordinator. The coordinator uses a user specified file to store configuration information, much like the feedforward child process has structure and weight files. Currently, the user has to manually modify this configuration file to specify input/output mappings (it is very quick and easy, don't worry). The configuration file is extremely sensitive to having correct empty lines in the right places.
 
-### XPC File Format
-All XPC files are stored in ```/tmp/emergence-neuralnet```. This directory gets deleted when the coordinator terminates; to prevent this behavior from taking place, pass the ```--tmpkeep``` to the coordinator. Each data communication file uses the following format to communicate data:
+The coordinator is capable of generating oscillatory inputs and propagating global inputs. The coordinator's set of real-time oscillating functions can be used as inputs in the ```oscillators``` output file. This means that you should not have any children named ```oscillators```. Currently ```oscillators``` provides sine and cosine functions. Global inputs are specified in the configuration file and are great for use as placeholders and constants across the system (hence, global). They are stored in the ```globalinputs``` output file. This means that you should not have any children named ```globalinputs```.
 
-    outputname: value
-    anotheroutput: value
-    computeddirection: 0.23
+### XPC Files
+All XPC files are stored in ```/tmp/emergence-neuralnet```. This directory gets deleted when the coordinator terminates; to prevent this behavior from taking place, pass the ```--tmpkeep``` option to the coordinator. Different types of files reside in this directory:
+
+* ```.command``` files: these files contain one or more child commands and are used by the parent to send commands, the number before the file extension is the child's PID
+* ```.output``` files: these are the files that contain the actual output data produced by each child (and the coordinator's oscillators and global inputs)
+
+Each output file uses the following format to communicate data:
+
+    outputname value
+    anotheroutput value
+    computeddirection 0.23
     etc. etc. etc.
 
 *Note:* each output name is the output name from the process that inputs (i.e. writes) data into the file
 
 ### Notes
-THIS SHOULD CHANGE TO BE BETTER!!!! WHAT IF OUTPUTS ARE IN DIFFERENT ORDER OR HAVE DIFFERENT NAMES???? NEED SOME TYPE OF USER SPECIFICATION MECHANISM
-* When using ```setinputfile filepath```, inputs are filled from left to right (i.e. from 0 to n) until, either there are no more inputs to fill, or all inputs in the input file have been read. This means that all the other inputs have to be set using the ```input name value``` command.
-* Partially due to the above semantic rule, special inputs (i.e. oscillatory inputs and global inputs) have to be an "unfilled" input.
-* The coordinator configuration file is in an easy to use, human readable format.
+* The coordinator configuration file is in an easy to use, human readable format. Feel free to modify it manually.
 
 ### Coordinator Commands
 * ```quit``` or ```q```: quits the REPL
 * ```print STRING```: prints out a string (the remainder of the line)
-* ```run```: runs the system with the current configuration, must run ```start``` first. Does not return. Use SIGINT (i.e. <kbd>ctrl</kbd>+<kbd>c</kbd>) to stop.
-* ```targetinterval seconds```: sets the system's target update interval to ```seconds```
-* ```updateall```: updates all the children, useful for testing
+* ```run```: runs the system with the current configuration, must run ```start``` first. Does not return. Use SIGTERM or SIGINT (i.e. <kbd>ctrl</kbd>+<kbd>c</kbd>) to stop.
+* ```targetinterval seconds```: sets the system's target update interval to a real number of ```seconds```
+* ```updateall```: updates every child's outputs based on its inputs, also steps oscillators forward, useful for testing
 * ```start```: (re)starts execution of the entire network's processes
 * ```summary```: prints out a summary of the current structure of the network
 * ```stats```: prints out various network statistics
@@ -63,7 +75,7 @@ All child processes have to support these commands to be supported by the coordi
 * ```update```: update outputs
 
 
-## Child Feedforward
+## Feedforward Neural Network (Child)
 A standard multilayer perceptron neural network. You can quickly try out this component by running:
 
     ./feedforward -C ../examples/test.commands ../examples/test.structure ../examples/test.weights
@@ -71,7 +83,7 @@ A standard multilayer perceptron neural network. You can quickly try out this co
 from within the ```child_feedforward``` directory.
 
 ### Notes
-* All layers are fully connected (i.e. in every neuron in a layer has a connecting dendrite to each neuron in the upstream layer). Every pair of adjacent layers forms a fully-connected, bipartite graph.
+* All layers are fully connected (i.e. in every neuron in a layer has a connecting dendrite to each neuron in the upstream layer). Every pair of adjacent layers forms a fully-connected, bipartite graph. In the future, synapse removal algorithms, such as optimal brain damage, may be implemented.
 
 
 ### Commands
@@ -86,8 +98,8 @@ from within the ```child_feedforward``` directory.
 * ```layerremove index```: removes the hidden layer at ```index```
 * ```inputadd name```: adds a new input to the neural network named ```name```, names with weird characters may result in undefined behavior (stick with alphanumeric names for now)
 * ```inputremove name```: removes the input named ```name``` from the neural network
-* N```inputbulkadd name quantity```: 
-* N```inputbulkremove name```: 
+* NOT IMPLEMENTED```inputbulkadd name quantity```: 
+* NOT IMPLEMENTED```inputbulkremove name```: 
 * ```outputadd name```: adds a new output neuron
 * ```outputremove name```: removes an output neuron
 * ```neuronadd index numneurons```: adds ```numneurons``` neurons to the layer at ```index```
@@ -99,13 +111,12 @@ from within the ```child_feedforward``` directory.
 ### TODO
 * Create new structure and weights files if they don't exist
 * Make the tmp file directory a constant
-* DONE! Make children accept SIGUSR2 and read from tmp file to run commands
-* DONE! Think about and document command semantics (e.g. insertion strategies, what to do with weights, etc.)
 
 
-## Image Input Driver
+## Image Input Driver (Child)
 An image input driver suitable for image recognition and other tasks.
 
 
-## Arduino Input/Output Driver
+## Arduino Input/Output Driver (Child)
 This driver is suitable for communicating with an Arduino through a USB serial port link.
+

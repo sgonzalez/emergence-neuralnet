@@ -3,7 +3,12 @@ net1 ../child_feedforward/feedforward -c ../examples/test.structure ../examples/
 
 # I/O mappings:
 # Format: outputchild outputname childname mapped-input
+globalinputs 	test 	net1 	z
 oscillators 	sin1 	net1 	x
+
+# Global inputs:
+# Format: name value
+testInput 0.5
 
 # Parameters:
 targetUpdateInterval 0.1
