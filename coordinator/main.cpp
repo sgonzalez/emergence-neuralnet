@@ -43,6 +43,10 @@ void engage(std::string configFile, std::string commandsFile, bool child) {
     
     if (!child) {
         host->runWithREPL();
+    } else {
+        host->runCommand("start");
+        sleep(2); // give time for processes to start (I know this is unideal)
+        host->runCommand("run");
     }
 }
 

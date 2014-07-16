@@ -265,6 +265,8 @@ void Host::run() {
         sendMappings();
     }
     
+    std::cout << "OUT: Running..." << std::endl;
+    
     timeIndex = 0; // reset time index
     
     bool looping = true;
