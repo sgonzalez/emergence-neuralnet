@@ -9,6 +9,7 @@
 #include <string>
 #include <sstream>
 #include <ctime>
+#include <map>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
@@ -24,8 +25,13 @@ class NeuralHost {
     char *structurepath;
     char *weightspath;
     
+    std::map<std::string, std::map<std::string, std::string>> inputMappings;
+    std::string outputFile;
+    
     void readStructureFile(); ///< read in the structure from an existing file that is accessible
     void readWeightsFile(); ///< read in the weights from an existing file that is accessible, must be called AFTER readStructureFile()
+    
+    void addInputMapping(std::string outputfilename, std::string outputname, std::string inputname); ///< maps an output from an XPC file to an input
     
     void runAsChildInterruptHandler();
     void runCoordinatorCommand();

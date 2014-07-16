@@ -58,8 +58,7 @@ Here is a sample sequence of commands that can be used with the coordinator, eit
 ### Child Process Commands
 All child processes have to support these commands to be supported by the coordinator:
 * ```quit``` or ```q```: quits the REPL
-* N```setinputfile filepath```: sets the file from which inputs are taken (readonly)
-* N```addinputmapping ouputname inputname``` maps an output from an XPC file to an input, unmapped / unfilled inputs default to zero
+* ```addinputmapping outputfile ouputname inputname``` maps an output from an XPC file to an input, unmapped / unfilled inputs default to zero
 * N```setoutputfile filepath```: sets the file where outputs are written (writeonly)
 * N```input name value```: sets a specific input
 * N```update```: update outputs
@@ -100,6 +99,7 @@ from within the ```child_feedforward``` directory.
 
 ### TODO
 * Create new structure and weights files if they don't exist
+* Make the tmp file directory a constant
 * DONE! Make children accept SIGUSR2 and read from tmp file to run commands
 * DONE! Think about and document command semantics (e.g. insertion strategies, what to do with weights, etc.)
 

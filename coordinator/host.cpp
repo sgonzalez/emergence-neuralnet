@@ -6,6 +6,7 @@
 
 Host::Host(char *nconfigpath) {
     started = false;
+    hasSentMappings = false;
     targetUpdateInterval = 1.f;
     
     configpath = nconfigpath;
@@ -203,10 +204,27 @@ void Host::childRunCommand(std::string name, std::string command) {
     }
 }
 
+void Host::sendMappings() {
+    for (std::pair<std::string, std::map<std::string, std::map<std::string, std::string>>> childentry : systemInputMappings) {
+        childRunCommand(childentry.first, "setoutputfile /tmp/emergence-neuralnet/" + childentry.first + ".output");
+        for (std::pair<std::string, std::map<std::string, std::string>> fileentry : systemInputMappings[childentry.first]) {
+            for (std::pair<std::string, std::string> mapping : systemInputMappings[childentry.first][fileentry.first]) {
+                childRunCommand(childentry.first, "addinputmapping /tmp/emergence-neuralnet/" + fileentry.first + ".output" + " " + mapping.first + " " + mapping.second);
+                /// @todo batch these commands together, eventually
+            }
+        }
+    }
+    hasSentMappings = true;
+}
+
 void Host::updateChildren() {
     if (!started) {
         std::cerr << "Must run start before run!" << std::endl;
         return;
+    }
+    
+    if (!hasSentMappings) {
+        sendMappings();
     }
 
     updateOscillators();
@@ -230,6 +248,10 @@ void Host::run() {
     if (!started) {
         std::cerr << "Must run start before run!" << std::endl;
         return;
+    }
+    
+    if (!hasSentMappings) {
+        sendMappings();
     }
     
     timeIndex = 0; // reset time index

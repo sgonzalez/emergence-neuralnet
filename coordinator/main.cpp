@@ -55,7 +55,7 @@ void cleanUp() {
     
     if (!keepTmp) {
         system("exec rm -rf /tmp/emergence-neuralnet");
-        std::cout << "Deleting /tmp/emergence-neuralnet..." << std::endl;
+        std::cout << "Deleting /tmp/emergence-neuralnet/..." << std::endl;
     }
 }
 

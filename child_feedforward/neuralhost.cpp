@@ -25,7 +25,13 @@ NeuralHost::NeuralHost(char *nstructurepath, char *nweightspath) {
 }
 
 void NeuralHost::update() {
-    std::cout << "YO DAWG!!" << std::endl;
+    std::vector<double> inputs;
+    int size = neuralnet.getInputs().size();
+    for (int i = 0; i < size; i++) {
+        inputs.push_back(0);
+    }
+    
+    //// TODO read the actual inputs from the mapped files jfasdlkfjaskl
 }
 
 void NeuralHost::runCoordinatorCommand() {
@@ -197,9 +203,9 @@ bool NeuralHost::runCommand(std::string command) {
     std::string arguments = (pos != command.length()) ? command.substr(pos+1) : "";
     std::string opcode = command.substr(0,pos);
     
-    std::string firstarg, secondarg;
+    std::string firstarg, secondarg, thirdarg;
     std::istringstream args(arguments);
-    args >> firstarg >> secondarg;
+    args >> firstarg >> secondarg >> thirdarg;
     
     if (opcode == "print") { // print out a string
         std::cout << "OUT: " << arguments << std::endl;
@@ -233,6 +239,10 @@ bool NeuralHost::runCommand(std::string command) {
         neuralnet.removeLayer(std::stoi(firstarg));
     } else if (opcode == "timepropagation") {
         timePropagation();
+    } else if (opcode == "addinputmapping") {
+        addInputMapping(firstarg, secondarg, thirdarg);
+    } else if (opcode == "setoutputfile") {
+        outputFile = firstarg;
     } else if (opcode == "debug") {
         std::cout << "DEBUG: not implemented in this distribution, not required, no standardized functionality" << std::endl;
         // for (NeuronLayer layer : neuralnet.getLayers())
@@ -243,6 +253,10 @@ bool NeuralHost::runCommand(std::string command) {
     }
     
     return true;
+}
+
+void NeuralHost::addInputMapping(std::string outputfilename, std::string outputname, std::string inputname) {
+    inputMappings[outputfilename][outputname] = inputname;
 }
 
 void NeuralHost::timePropagation() {
