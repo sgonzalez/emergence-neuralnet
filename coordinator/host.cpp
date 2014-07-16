@@ -186,6 +186,11 @@ void Host::childRunCommand(std::string name, std::string command) {
     }
     
     if (pids.find(name) != pids.end()) { // the child exists
+        if (command == "update") { // shortcut for update commands
+            kill(pids[name], SIGUSR1);
+            return;
+        }
+        
         // write command to tmp file
         std::ofstream pidfile("/tmp/emergence-neuralnet/" + std::to_string(pids[name]) + ".command");
         pidfile << command;
@@ -204,9 +209,21 @@ void Host::updateChildren() {
         return;
     }
 
+    updateOscillators();
+    timeIndex += targetUpdateInterval;
+    
     for (std::pair<std::string, pid_t> child : pids) {
         kill(child.second, SIGUSR1);
     }
+}
+
+void Host::updateOscillators() {
+    std::ofstream funcfile("/tmp/emergence-neuralnet/oscillators.output");
+    funcfile << "sin1 " << sin(timeIndex * 2*M_PI) << std::endl; // sine wave, period = 1 second
+    funcfile << "sin8 " << sin(timeIndex * 10 * 2*M_PI) << std::endl; // sine wave, period = 8 seconds
+    funcfile << "cos1 " << cos(timeIndex * 2*M_PI) << std::endl; // cosine wave, period = 1 second
+    funcfile << "cos8 " << cos(timeIndex * 10 * 2*M_PI) << std::endl; // cosine wave, period = 8 seconds
+    funcfile.close();
 }
 
 void Host::run() {
@@ -215,9 +232,14 @@ void Host::run() {
         return;
     }
     
-    while (1) {
+    timeIndex = 0; // reset time index
+    
+    bool looping = true;
+    while (looping) {
+        updateOscillators();
         updateChildren();
         sleep(targetUpdateInterval);
+        timeIndex += targetUpdateInterval;
     }
 }
 
@@ -295,13 +317,22 @@ void Host::saveConfiguration() {
     std::ofstream configfile(configpath);
     configfile << "# Children:" << std::endl;
     for (std::pair<std::string, Child> child : children) {
-        // configfile << child.first << " " << child.second.invocation << " ";
+        configfile << child.first << " "; //<< child.second.invocation << " ";
         for (std::string tok : child.second.argv)
             configfile << tok << " ";
         configfile << std::endl;
     }
-    configfile << std::endl << "# I/O mappings:" << std::endl;
-    ////// TODO save i/o mappings
+    
+    configfile << std::endl << "# I/O mappings:";
+    configfile << std::endl << "# Format: outputchild outputname childname mapped-input" << std::endl;
+    for (std::pair<std::string, std::map<std::string, std::map<std::string, std::string>>> childentry : systemInputMappings) {
+        for (std::pair<std::string, std::map<std::string, std::string>> fileentry : systemInputMappings[childentry.first]) {
+            for (std::pair<std::string, std::string> mapping : systemInputMappings[childentry.first][fileentry.first]) {
+                configfile << fileentry.first << " \t" << mapping.first << " \t" << childentry.first << " \t" << mapping.second << std::endl;
+            }
+        }
+    }
+    
     configfile << std::endl << "# Parameters:" << std::endl;
     configfile << "targetUpdateInterval " << targetUpdateInterval << std::endl;
     configfile.close();
@@ -319,7 +350,7 @@ void Host::readConfigFile() {
 			if (line.length() > 0) { // check blank lines
                 std::istringstream iss(line);
         
-                if (section == 0) {
+                if (section == 0) { // CHILDREN
                     std::string::size_type pos = line.find(' ',0);
                     std::string invocation = (pos != line.length()) ? line.substr(pos+1) : "";
                     std::string name = line.substr(0,pos);
@@ -335,9 +366,11 @@ void Host::readConfigFile() {
                     }
                     Child c(first, tokens);
                     children.insert(std::pair<std::string, Child>(name, c));
-                } else if (section == 1) {
-                    
-                } else if (section == 2) {
+                } else if (section == 1) { // I/O MAPPINGS
+                    std::string outputfile, outputname, childname, mappedinput;
+                    iss >> outputfile >> outputname >> childname >> mappedinput;
+                    systemInputMappings[childname][outputfile][outputname] = mappedinput;
+                } else if (section == 2) { // PARAMETERS
                     std::string parameter;
                     iss >> parameter;
                     if (parameter == "targetUpdateInterval") {

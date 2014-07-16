@@ -11,6 +11,7 @@
 #include <map>
 #include <sstream>
 #include <unistd.h>
+#include <math.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <signal.h>
@@ -24,13 +25,14 @@ struct Child {
 /// Host coordinates various child processes and vends command functionality, this is the main class. Only one instance of this should be running within the program.
 class Host {
     std::map<std::string, Child> children;
-    
+    std::map<std::string, std::map<std::string, std::map<std::string, std::string>>> systemInputMappings; ///< map from children to (map of filename to (map of outputnames to inputnames))
     std::map<std::string, pid_t> pids;
+    double timeIndex; ///< in seconds
     bool started;
     
     char *configpath;
     
-    float targetUpdateInterval; ///< in seconds
+    double targetUpdateInterval; ///< in seconds
     
     void readConfigFile(); ///< read in the configuration from an existing file that is accessible
     
@@ -38,6 +40,7 @@ class Host {
     void removeChild(std::string name);
     
     void updateChildren();
+    void updateOscillators();
     void childRunCommand(std::string name, std::string command);
     
 public:
