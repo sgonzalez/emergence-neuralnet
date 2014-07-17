@@ -1,5 +1,5 @@
 # Emergence Neural Network Project
-This project introduces an extremely flexible, scalable, and easy-to-use tool for the construction, learning, testing, and real-world usage of neural networks. Each neural network system can be composed of one single neural network process, or several neural network and input/output driver processes that are managed by one coordinating command process, communicating through the use of tmp files. The neural networks each cater their own set of commands which are used to manipulate and modify the neural network. These commands are accessible through a user friendly REPL (Read Evaluate Print Loop) or specified command files. Additionally, each neural network is capable of learning through the use of genetic algorithms faculties that have been included. (Backpropagation supervised learning may be included at a future date)
+This project introduces an extremely flexible, scalable, and easy-to-use tool for the construction, learning, testing, and real-world usage of neural networks and control systems. Each neural network system can be composed of one single neural network process, or several neural network and input/output driver processes that are managed by one coordinating command process, communicating through the use of tmp files. The neural networks each cater their own set of commands which are used to manipulate and modify the neural network. These commands are accessible through a user friendly REPL (Read Evaluate Print Loop) or specified command files. Additionally, each neural network is capable of learning through the use of genetic algorithms faculties that have been included. (Backpropagation supervised learning may be included at a future date)
 
 ### Compiling
 To compile, just run ```build.sh``` from the root directory to compile everything, or ```make``` from each child program directory individually. There are no weird dependencies. However, I have not attempted to compile this on Windows and can't guarantee that everything will work "out of the box".
@@ -98,8 +98,8 @@ from within the ```child_feedforward``` directory.
 * ```layerremove index```: removes the hidden layer at ```index```
 * ```inputadd name```: adds a new input to the neural network named ```name```, names with weird characters may result in undefined behavior (stick with alphanumeric names for now)
 * ```inputremove name```: removes the input named ```name``` from the neural network
-* NOT IMPLEMENTED```inputbulkadd name quantity```: 
-* NOT IMPLEMENTED```inputbulkremove name```: 
+* NOT IMPLEMENTED YET```inputbulkadd name quantity```: 
+* NOT IMPLEMENTED YET```inputbulkremove name```: 
 * ```outputadd name```: adds a new output neuron
 * ```outputremove name```: removes an output neuron
 * ```neuronadd index numneurons```: adds ```numneurons``` neurons to the layer at ```index```
@@ -111,7 +111,13 @@ from within the ```child_feedforward``` directory.
 ### TODO
 * Create new structure and weights files if they don't exist
 * Make the tmp file directory a constant
+* Have a "history" in the REPL like a shell does, so you can up-arrow to reuse the previously used command
+* Potentially move shared child code into a shared code directory
 
+## Generic (Child)
+This is as barebones as a child can get. It implements the basic child functionality (i.e. child process commands, XPC, kill signals, etc.) and performs concrete operations (written within the code, just a negation for now) on the input data to produce outputs in just over 200 lines of code! For actual use, this should be used as a template/reference to create your own child types. Reference ```feedforward``` for more advanced functionality (including configuration persistence).
+
+This base implementation currently just negates the three inputs x, y, z and outputs xn, yn, zn.
 
 ## Image Input Driver (Child)
 An image input driver suitable for image recognition and other tasks.

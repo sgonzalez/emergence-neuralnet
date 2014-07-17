@@ -42,11 +42,12 @@ class Host {
     void addChild(std::string name, std::string invocation); ///< adds a new child to to be managed, referenced by name, called by invocation
     void removeChild(std::string name);
     
+    void setupGlobalInputs(); ///< write the global inputs to an output file
     void sendMappings(); ///< send the I/O mappings to the children
     
     void updateChildren();
     void updateOscillators();
-    void childRunCommand(std::string name, std::string command);
+    void childRunCommand(std::string name, std::string command); // note: you can concatenate multiple commands and this will work appropriately
     
 public:
     Host(char *configpath);

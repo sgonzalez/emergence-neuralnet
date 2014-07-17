@@ -213,6 +213,14 @@ void Host::childRunCommand(std::string name, std::string command) {
     }
 }
 
+void Host::setupGlobalInputs() {
+    std::ofstream ginputsfile("/tmp/emergence-neuralnet/globalinputs.output");
+    for (std::pair<std::string, double> ginput : globalInputs) {
+        ginputsfile << ginput.first << " " << ginput.second << std::endl;
+    }
+    ginputsfile.close();
+}
+
 void Host::sendMappings() {
     std::cout << "OUT: Sending I/O mappings..." << std::endl;
     for (std::pair<std::string, std::map<std::string, std::map<std::string, std::string>>> childentry : systemInputMappings) {
@@ -235,6 +243,7 @@ void Host::updateChildren() {
     }
     
     if (!hasSentMappings) {
+        setupGlobalInputs();
         sendMappings();
     }
 

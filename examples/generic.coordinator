@@ -1,10 +1,11 @@
 # Children:
-net1 ../child_feedforward/feedforward -c ../examples/test.structure ../examples/test.weights 
+net1 ../child_generic/generic -c
 
 # I/O mappings:
 # Format: outputchild outputname childname mapped-input
-globalinputs 	test 	net1 	z
 oscillators 	sin1 	net1 	x
+oscillators 	cos1 	net1 	y
+globalinputs 	test 	net1 	z
 
 # Global inputs:
 # Format: name value

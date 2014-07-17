@@ -285,6 +285,8 @@ bool NeuralHost::runCommand(std::string command) {
         addInputMapping(firstarg, secondarg, thirdarg);
     } else if (opcode == "setoutputfile") {
         outputFile = firstarg;
+    } else if (opcode == "update") {
+        update();
     } else if (opcode == "debug") {
         std::cout << "DEBUG: not implemented in this distribution, not required, no standardized functionality" << std::endl;
         // for (NeuronLayer layer : neuralnet.getLayers())

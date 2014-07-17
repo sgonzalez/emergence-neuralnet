@@ -50,8 +50,4 @@ public:
     void timePropagation();
     
     void saveNetwork(); ///< saves the network structure and weights to structurepath and weightspath, respectively
-    
-    // POTENTIALLY IMPLEMENT THESE TWO LATER
-    // void loadNetworkState(char *statefile);
-    // void saveNetworkState(char *statefile);
 };
