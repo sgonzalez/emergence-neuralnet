@@ -1,0 +1,4 @@
+setoutputfile /tmp/emergence-neuralnet/TEST.out
+train
+update
+print Done

@@ -10,7 +10,7 @@ const double Genetic::maximumMutation = 0.3;
 const int Genetic::numberEliteCopies = 1;
 const int Genetic::numberElite = 4;
 
-Genetic::Genetic(int populationSize, double mutationRate, int crossoverRate, int chromosomeLength) :
+Genetic::Genetic(int populationSize, double mutationRate, double crossoverRate, int chromosomeLength) :
 populationSize(populationSize),
 mutationRate(mutationRate),
 crossoverRate(crossoverRate),

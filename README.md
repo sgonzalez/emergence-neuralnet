@@ -1,5 +1,5 @@
 # Emergence Neural Network Project
-This project introduces an extremely flexible, scalable, and easy-to-use tool for the construction, learning, testing, and real-world usage of neural networks and control systems. Each neural network system can be composed of one single neural network process, or several neural network and input/output driver processes that are managed by one coordinating command process, communicating through the use of tmp files. The neural networks each cater their own set of commands which are used to manipulate and modify the neural network. These commands are accessible through a user friendly REPL (Read Evaluate Print Loop) or specified command files. Additionally, each neural network is capable of learning through the use of genetic algorithms faculties that have been included. (Backpropagation supervised learning may be included at a future date)
+This project introduces an extremely flexible, scalable, and easy-to-use tool for the construction, learning, testing, and real-world usage of neural networks and real-time control systems. Each neural network system can be composed of one single neural network process, or several neural network and input/output driver processes that are managed by one coordinating command process, communicating through the use of tmp files. The neural networks each cater their own set of commands which are used to manipulate and modify the neural network. These commands are accessible through a user friendly REPL (Read Evaluate Print Loop) or specified command files. Additionally, each neural network is capable of learning through the use of genetic algorithms faculties that have been included. (Backpropagation supervised learning may be included at a future date)
 
 ### Compiling
 To compile, just run ```build.sh``` from the root directory to compile everything, or ```make``` from each child program directory individually. There are no weird dependencies. However, I have not attempted to compile this on Windows and can't guarantee that everything will work "out of the box".
@@ -68,7 +68,7 @@ Here is a sample sequence of commands that can be used with the coordinator, eit
     run
 
 ### Child Process Commands
-All child processes have to support these commands to be supported by the coordinator:
+All child processes have to support a set of commands to allow manageability by the coordinator. Note that all training is handled by the children themselves, not the coordinator (a global supervised learning type thing might be added in the future).
 * ```quit``` or ```q```: quits the REPL
 * ```addinputmapping outputfile ouputname inputname``` maps an output from an XPC file to an input, unmapped / unfilled inputs default to zero
 * ```setoutputfile filepath```: sets the file where outputs are written (writeonly)
@@ -94,6 +94,7 @@ from within the ```child_feedforward``` directory.
 * ```save```: saves the network structure and weights
 * ```randomize```: rerandomizes all the weights
 * ```zeroweights```: sets all the weights to zero
+* ```learn``` or ```train```
 * ```layeradd index numneurons```: adds a hidden layer to the network with ```numneurons``` neurons at ```index```
 * ```layerremove index```: removes the hidden layer at ```index```
 * ```inputadd name```: adds a new input to the neural network named ```name```, names with weird characters may result in undefined behavior (stick with alphanumeric names for now)
@@ -106,6 +107,11 @@ from within the ```child_feedforward``` directory.
 * ```neuronremove index numneurons```: removes ```numneurons``` neurons from the layer at ```index```
 * ```timepropagation```: profiles the neural network's propagation time (i.e. how long it takes for outputs to change based on the inputs). Actual propagation is run many times with random inputs to ensure a good number.
 
+#### Learning Commands
+* NOT IMPLEMENTED YET```setgenetic```: s
+* NOT IMPLEMENTED YET```epoch```: run the learning for another "generation"
+* NOT IMPLEMENTED YET```setgenetic```: s
+* NOT IMPLEMENTED YET```setgenetic```: s
 
 
 ### TODO

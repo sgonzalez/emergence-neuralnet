@@ -16,6 +16,7 @@
 #include <signal.h>
 
 #include "neuralnet.h"
+#include "genetic.h"
 #include "utils.h"
 
 /// NeuralHost manages the multi-layer perceptron (NeuralNet instance), this is the main class. Only one instance of this should be running within the program.

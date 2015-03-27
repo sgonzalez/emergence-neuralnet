@@ -46,7 +46,7 @@ class Genetic {
     void reset();
     
 public:
-    Genetic(int populationSize, double mutationRate, int crossoverRate, int chromosomeLength);
+    Genetic(int populationSize, double mutationRate, double crossoverRate, int chromosomeLength);
     
     std::vector<Chromosome> runEpoch(std::vector<Chromosome> &previousPopulation);
     
