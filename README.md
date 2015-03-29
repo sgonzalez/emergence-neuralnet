@@ -1,8 +1,8 @@
 # Emergence Neural Network Project
-This project introduces an extremely flexible, scalable, and easy-to-use tool for the construction, learning, testing, and real-world usage of neural networks and real-time control systems. Each neural network system can be composed of one single neural network process, or several neural network and input/output driver processes that are managed by one coordinating command process, communicating through the use of tmp files. The neural networks each cater their own set of commands which are used to manipulate and modify the neural network. These commands are accessible through a user friendly REPL (Read Evaluate Print Loop) or specified command files. Additionally, each neural network is capable of learning through the use of genetic algorithms faculties that have been included. (Backpropagation supervised learning may be included at a future date)
+This project introduces an extremely flexible, scalable, and easy-to-use tool for the construction, learning, testing, and real-world usage of neural networks and real-time control systems. Each neural network system can be composed of one single neural network process, or several neural network and input/output driver processes that are managed by one coordinating command process, communicating through the use of tmp files. The neural networks each cater their own set of commands which are used to manipulate and modify the neural network. These commands are accessible through a user friendly REPL (Read Evaluate Print Loop) or specified command files. Additionally, each neural network is capable of learning through the use of genetic algorithms faculties that have been included. Genetic algorithms have been selected over backpropagation because backpropagation can take a long time to run for networks with many hidden layers. (Backpropagation supervised learning may be included at a future date)
 
 ### Compiling
-To compile, just run ```build.sh``` from the root directory to compile everything, or ```make``` from each child program directory individually. There are no weird dependencies. However, I have not attempted to compile this on Windows and can't guarantee that everything will work "out of the box".
+To compile, just run ```build.sh``` from the root directory to compile everything, or ```make``` from each child program directory individually. There are no weird dependencies. However, I have not attempted to compile this on Windows and can't guarantee that everything will work "out of the box". Everything should run fine on any *nix system (e.g. Linux, Mac, BSD).
 
 ### Licensing
 The code for Emergence is hereby released under the GNU General Public License (GPL) v2. Specific terms are available in the ```LICENSE``` file. Essentially, Emergence cannot be used in commercial (i.e. paid) software, uses of Emergence must retain attribution, and modifications to Emergence must be re-released into open-source under the same license. If you would like to use emergence in a commercial software distribution, feel free to contact me at slgonzalez (at) me (dot) com.
@@ -94,7 +94,7 @@ from within the ```child_feedforward``` directory.
 * ```save```: saves the network structure and weights
 * ```randomize```: rerandomizes all the weights
 * ```zeroweights```: sets all the weights to zero
-* ```learn``` or ```train```
+* NOT IMPLEMENTED YET```learn``` or ```train```
 * ```layeradd index numneurons```: adds a hidden layer to the network with ```numneurons``` neurons at ```index```
 * ```layerremove index```: removes the hidden layer at ```index```
 * ```inputadd name```: adds a new input to the neural network named ```name```, names with weird characters may result in undefined behavior (stick with alphanumeric names for now)
@@ -108,6 +108,8 @@ from within the ```child_feedforward``` directory.
 * ```timepropagation```: profiles the neural network's propagation time (i.e. how long it takes for outputs to change based on the inputs). Actual propagation is run many times with random inputs to ensure a good number.
 
 #### Learning Commands
+* ```train trainingfile popsize generations```: trains the neural network with genetic algorithms, using the training data file ```trainingfile```, a population of size ```popsize```, for ```generations``` "generations". The fitness is calculated as an average deviation from the expected values for each sample in the training data file.
+* NOT IMPLEMENTED YET ```train trainingfile popsize generations fitness```: similar to above, uses custom fitness function that is loaded at runtime using ```dlopen()```.
 * NOT IMPLEMENTED YET```setgenetic```: s
 * NOT IMPLEMENTED YET```epoch```: run the learning for another "generation"
 * NOT IMPLEMENTED YET```setgenetic```: s

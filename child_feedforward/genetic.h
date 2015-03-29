@@ -51,6 +51,7 @@ public:
     std::vector<Chromosome> runEpoch(std::vector<Chromosome> &previousPopulation);
     
     std::vector<Chromosome> getChromosomes() const { return population; }
-    double getAverageFitness() const {return totalFitness / populationSize; }
-    double getBestFitness() const {return bestFitness; }
+	int getBestChromosome() const { return bestChromosome; }
+    double getAverageFitness() const { return totalFitness / populationSize; }
+    double getBestFitness() const { return bestFitness; }
 };
