@@ -1,4 +1,4 @@
 setoutputfile /tmp/emergence-neuralnet/TEST.out
-train ../examples/training/trainingtest.traindata 100 1000
+train ../examples/training/trainingtest.traindata ../examples/training/trainingtest.testdata 100 1000
 update
 print Done

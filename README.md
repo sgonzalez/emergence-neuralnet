@@ -108,12 +108,13 @@ from within the ```child_feedforward``` directory.
 * ```timepropagation```: profiles the neural network's propagation time (i.e. how long it takes for outputs to change based on the inputs). Actual propagation is run many times with random inputs to ensure a good number.
 
 #### Learning Commands
-* ```train trainingfile popsize generations```: trains the neural network with genetic algorithms, using the training data file ```trainingfile```, a population of size ```popsize```, for ```generations``` "generations". The fitness is calculated as an average deviation from the expected values for each sample in the training data file.
-* NOT IMPLEMENTED YET ```train trainingfile popsize generations fitness```: similar to above, uses custom fitness function that is loaded at runtime using ```dlopen()```.
-* NOT IMPLEMENTED YET```setgenetic```: s
-* NOT IMPLEMENTED YET```epoch```: run the learning for another "generation"
-* NOT IMPLEMENTED YET```setgenetic```: s
-* NOT IMPLEMENTED YET```setgenetic```: s
+* ```train trainingfile testingfile popsize generations```: trains the neural network with genetic algorithms, using the training data file ```trainingfile```, a population of size ```popsize```, for ```generations``` "generations". The fitness is calculated as a cummulative deviation from the expected values for each network output for each sample in the training data file. The trained network is then validated using the testing data file ```testingfile```
+* NOT IMPLEMENTED YET ```train trainingfile testingfile popsize generations fitness```: similar to above, uses custom fitness function, ```fitness```, that is loaded at runtime using ```dlopen()```.
+
+Example training: ```./feedforward --commands ../examples/training/trainingtest.commands ../examples/test.structure ../examples/test.weights```
+
+#### Supervised Learning Data File Format
+Both training and testing data files have the same format. Each sample is on a separate line: ```<inputs> : <outputs>```. ```<inputs>``` and ```<outputs>``` are a series of space-separated values. ```<inputs>``` and ```<outputs>``` must have the same quantity of values as the network has inputs and outputs, respectively. Empty lines and lines beginning with ```#``` are ignored.
 
 
 ### TODO

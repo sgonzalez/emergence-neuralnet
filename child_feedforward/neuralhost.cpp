@@ -277,9 +277,9 @@ bool NeuralHost::runCommand(std::string command) {
     std::string arguments = (pos != command.length()) ? command.substr(pos+1) : "";
     std::string opcode = command.substr(0,pos);
     
-    std::string firstarg, secondarg, thirdarg;
+    std::string firstarg, secondarg, thirdarg, fourtharg;
     std::istringstream args(arguments);
-    args >> firstarg >> secondarg >> thirdarg;
+    args >> firstarg >> secondarg >> thirdarg >> fourtharg;
     
     if (opcode == "print") { // print out a string
         std::cout << "OUT: " << arguments << std::endl;
@@ -297,8 +297,11 @@ bool NeuralHost::runCommand(std::string command) {
         neuralnet.zeroWeights();
     } else if (opcode == "learn" || opcode == "train") {
 		std::string trainname = firstarg;
-		int popsize = stoi(secondarg);
-		int generations = stoi(thirdarg);
+		std::string testname = secondarg;
+		int popsize = stoi(thirdarg);
+		int generations = stoi(fourtharg);
+		
+		clock_t begin = clock();
 		
 		// Load training data
 		int inputCount = neuralnet.getInputs().size();
@@ -356,16 +359,16 @@ bool NeuralHost::runCommand(std::string command) {
 				for (int sample = 0; sample < trainingdata.size(); sample++) {
 					std::vector<double> outputs = neuralnet.propagate(trainingdata[sample].first);
 				
-					// adjust the fitness for the current sample
+					// adjust the fitness given the current sample, currently all outputs are considered equally
 					double current_sample_fitness = 0;
 					for (int i = 0; i < outputs.size(); i++) {
-						current_sample_fitness += 2 - fabs(outputs[i] - trainingdata[sample].second[i]); // use a simple difference to get the fitness, TODO: eventually have the option to 
+						current_sample_fitness += 1 - fabs(outputs[i] - trainingdata[sample].second[i]); // use a simple difference to get the fitness, TODO: eventually have the option to 
 					}
 					population[i].fitness += current_sample_fitness;
 				}
 			}
 			
-			std::cout << genalg->getBestFitness() << "\t" << genalg->getAverageFitness() << std::endl;
+//			std::cout << genalg->getBestFitness() << "\t" << genalg->getAverageFitness() << std::endl;
 		}
 		
 		// Get weights from best chromosome
@@ -377,12 +380,61 @@ bool NeuralHost::runCommand(std::string command) {
 				neuralnet.setWeights(c.genes);
 			}
 		}
-		std::cout << currentbestfitness;
+		// std::cout << currentbestfitness;
 		// std::cout << population[genalg->getBestChromosome()].fitness << " " << genalg->getChromosomes()[genalg->getBestChromosome()].fitness;
 		// neuralnet.setWeights(population[genalg->getBestChromosome()].genes);
 		
-		// Print final max and average fitnesses
-		std::cout << "OUT: TRAINING: best=" << genalg->getBestFitness() << ", avg=" << genalg->getAverageFitness() << std::endl;
+		// Print final max and average fitnesses, and elapsed time
+		clock_t end = clock();
+	    double elapsedSeconds = (double(end - begin) / CLOCKS_PER_SEC);
+		std::cout << "OUT: TRAINING: best=" << genalg->getBestFitness() << ", avg=" << genalg->getAverageFitness() << ", elapsed=";
+		printf("%.4lf seconds\n", elapsedSeconds);
+		
+		// Load testing data
+		std::vector<std::pair<std::vector<double>, std::vector<double>>> testingdata;
+		std::ifstream testingfile(testname);
+	    while (std::getline(testingfile, line)) {
+	        if (line[0] != '#') { // ignore comments
+				if (line.length() > 0) { // ignore blank lines
+					std::vector<std::string> two_parts = string_split(line, ':');
+					std::vector<std::string> inputs_pre = string_split(two_parts[0], ' ');
+					std::vector<std::string> outputs_pre = string_split(two_parts[1], ' ');
+					
+					std::vector<double> inputs;
+					std::vector<double> outputs;
+					for (auto it = inputs_pre.begin(); it != inputs_pre.end(); ++it) {
+						try { inputs.push_back(stof(*it)); } catch (...) { }
+					}
+					for (auto it = outputs_pre.begin(); it != outputs_pre.end(); ++it) {
+						try { outputs.push_back(stof(*it)); } catch (...) { }
+					}
+					
+					if (inputs.size() != inputCount || outputs.size() != outputCount) {
+						std::cerr << "ERROR: Invalid training data file!" << std::endl;
+						break;
+					}
+					
+					testingdata.push_back(std::pair<std::vector<double>, std::vector<double>>(inputs, outputs));
+	            }
+	        }
+	    }
+		
+		// Validate using testing data
+		double deviation = 0;
+		for (auto it = testingdata.begin(); it != testingdata.end(); ++it) {
+			std::pair<std::vector<double>, std::vector<double>> sample = *it;
+			
+			std::vector<double> outputs = neuralnet.propagate(sample.first);
+			
+			double current_sample_fitness = 0;
+			for (int i = 0; i < outputCount; i++) {
+				current_sample_fitness += 1 - fabs(outputs[i] - sample.second[i]); // similar to fitness calculation
+			}
+			
+			deviation += current_sample_fitness / outputCount;
+		}
+		std::cout << "OUT: TESTING: " << 100*deviation / testingdata.size() << "% accuracy (higher is better)" << std::endl;
+		
 		
 		//// THIS IS TESTING CODE THAT SHOWS THE BASIC WORKFLOW FOR TRAINING WITH A GENETIC ALGORITHM
 		//int popsize = 100;
