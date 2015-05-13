@@ -1,6 +1,7 @@
 # Emergence Neural Network Project
 
 ### Note: THIS IS VERY MUCH A WORK IN PROGRESS
+#### The code isn't perfect right now, there are a bunch of TODOs and refactoring that needs to be done. Feel free to send me pull requests. 
 
 This project introduces an extremely flexible, scalable, and easy-to-use tool for the construction, learning, testing, and real-world usage of neural networks and real-time control systems. Each neural network system can be composed of one single neural network process, or several neural network and input/output driver processes that are managed by one coordinating command process, communicating through the use of tmp files. The neural networks each cater their own set of commands which are used to manipulate and modify the neural network. These commands are accessible through a user friendly REPL (Read Evaluate Print Loop) or specified command files. Additionally, each neural network is capable of one-shot (ish) learning through the use of genetic algorithm faculties that have been included. Something to note is that the neural network is still trained in a supervised fashion when using genetic algorithms. Genetic algorithms have been selected over backpropagation because the gradient descent process can take a long time to run for networks with many hidden layers and because I wanted to try out something unique. (Backpropagation supervised learning may be included at a future date) The system is completely written in C++ for performance and portability.
 
