@@ -32,6 +32,8 @@ class NeuralHost {
     void readStructureFile(); ///< read in the structure from an existing file that is accessible
     void readWeightsFile(); ///< read in the weights from an existing file that is accessible, must be called AFTER readStructureFile()
     
+	void trainNetwork(std::string trainname, std::string testname, int popsize, int generations);
+
     void addInputMapping(std::string outputfilename, std::string outputname, std::string inputname); ///< maps an output from an XPC file to an input
     
     void runAsChildInterruptHandler();
