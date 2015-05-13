@@ -1,11 +1,19 @@
 # Emergence Neural Network Project
 
-### THIS IS VERY MUCH A WORK IN PROGRESS
+### Note: THIS IS VERY MUCH A WORK IN PROGRESS
 
-This project introduces an extremely flexible, scalable, and easy-to-use tool for the construction, learning, testing, and real-world usage of neural networks and real-time control systems. Each neural network system can be composed of one single neural network process, or several neural network and input/output driver processes that are managed by one coordinating command process, communicating through the use of tmp files. The neural networks each cater their own set of commands which are used to manipulate and modify the neural network. These commands are accessible through a user friendly REPL (Read Evaluate Print Loop) or specified command files. Additionally, each neural network is capable of learning through the use of genetic algorithms faculties that have been included. Genetic algorithms have been selected over backpropagation because it can take a long time to run for networks with many hidden layers. (Backpropagation supervised learning may be included at a future date)
+This project introduces an extremely flexible, scalable, and easy-to-use tool for the construction, learning, testing, and real-world usage of neural networks and real-time control systems. Each neural network system can be composed of one single neural network process, or several neural network and input/output driver processes that are managed by one coordinating command process, communicating through the use of tmp files. The neural networks each cater their own set of commands which are used to manipulate and modify the neural network. These commands are accessible through a user friendly REPL (Read Evaluate Print Loop) or specified command files. Additionally, each neural network is capable of one-shot (ish) learning through the use of genetic algorithm faculties that have been included. Something to note is that the neural network is still trained in a supervised fashion when using genetic algorithms. Genetic algorithms have been selected over backpropagation because the gradient descent process can take a long time to run for networks with many hidden layers and because I wanted to try out something unique. (Backpropagation supervised learning may be included at a future date) The system is completely written in C++ for performance and portability.
+
+### Future Work
+* Unsupervised learning with autoencoders
+* Ability to dynamically load custom fitness functions at runtime
+* Hardware interfacing with new child processes
+* New training methods
+* GPU processing with CUDA or preferably OpenCL to increase performance
+* Long term: some type of goal-trainable "fabric" that connects different components
 
 ### Compiling
-To compile, just run ```build.sh``` from the root directory to compile everything, or ```make``` from each child program directory individually. There are no weird dependencies. However, I have not attempted to compile this on Windows and can't guarantee that everything will work "out of the box". Everything should run fine on any *nix system (e.g. Linux, Mac, BSD).
+To compile, just run ```build.sh``` from the root directory to compile everything, or ```make``` from each child program directory individually. There are no weird dependencies. However, I have not attempted to compile this on Windows and can't guarantee that everything will work "out of the box". Everything should run fine on any *nix system (e.g., Linux, Mac, BSD).
 
 ### Licensing
 The code for Emergence is hereby released under the GNU General Public License (GPL) v2. Specific terms are available in the ```LICENSE``` file. Essentially, Emergence cannot be used in commercial (i.e. paid) software, uses of Emergence must retain attribution, and modifications to Emergence must be re-released into open-source under the same license. If you would like to use emergence in a commercial software distribution, feel free to contact me at slgonzalez (at) me (dot) com.
