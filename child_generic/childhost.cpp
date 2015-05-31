@@ -4,6 +4,8 @@
 
 #include "ChildHost.h"
 
+#define TMP_DIR "/tmp/emergence-neuralnet/"
+
 ChildHost::ChildHost() {
     srand(time(NULL)); // seed the prng
     
@@ -72,7 +74,7 @@ void ChildHost::update() {
 void ChildHost::runCoordinatorCommand() {
     // Note: we are using runCommands instead of runCommand to prevent data overwrite race conditions caused by the coordinator
     pid_t mypid = getpid();
-    runCommands(strdup(std::string("/tmp/emergence-neuralnet/" + std::to_string(mypid) + ".command").c_str()));
+    runCommands(strdup(std::string(TMP_DIR + std::to_string(mypid) + ".command").c_str()));
 }
 
 volatile sig_atomic_t usr_interrupt_1 = 0; ///< set when SIGUSR1 arrives

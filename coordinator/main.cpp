@@ -8,7 +8,7 @@
 
 #include "host.h"
 
-#define TMP_DIR "/tmp/emergence-neuralnet"
+#define TMP_DIR "/tmp/emergence-neuralnet/"
 
 static void show_usage(std::string name) {
     std::cerr << "Usage: " << name << " <option(s)> PERSISTENCE_FILE" << std::endl
