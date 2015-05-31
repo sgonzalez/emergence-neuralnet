@@ -8,13 +8,15 @@
 
 #include "host.h"
 
+#define TMP_DIR "/tmp/emergence-neuralnet"
+
 static void show_usage(std::string name) {
     std::cerr << "Usage: " << name << " <option(s)> PERSISTENCE_FILE" << std::endl
         << "Options:\n"
         << "\t-h,--help\t\t\tShow this help message\n"
         << "\t-c,--child\t\t\tRun as a \"child\" process, i.e. with no REPL.\n"
         << "\t-C,--commands COMMANDS_FILE\tSpecify a command file to run on startup\n"
-        << "\t-tk,--tmpkeep\t\t\tPrevent /tmp/emergence-neuralnet delete on termination"
+        << "\t-tk,--tmpkeep\t\t\tPrevent " TMP_DIR "delete on termination"
         << std::endl;
 }
 
@@ -58,8 +60,8 @@ void cleanUp() {
     delete host;
     
     if (!keepTmp) {
-        system("exec rm -rf /tmp/emergence-neuralnet");
-        std::cout << "Deleting /tmp/emergence-neuralnet/..." << std::endl;
+        system("exec rm -rf " TMP_DIR);
+        std::cout << "Deleting" TMP_DIR "/..." << std::endl;
     }
 }
 
@@ -95,7 +97,7 @@ int main(int argc, char* argv[]) { // main almost exclusively does parameter pro
         }
     }
     
-    system("exec mkdir -p /tmp/emergence-neuralnet");
+    system("exec mkdir -p " TMP_DIR);
     
     atexit(cleanUp);
     signal(SIGINT, intHandler);
