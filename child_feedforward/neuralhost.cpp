@@ -5,6 +5,8 @@
 #include "neuralhost.h"
 #include <math.h>
 
+#define TMP_DIR "/tmp/emergence-neuralnet/"
+
 NeuralHost::NeuralHost(char *nstructurepath, char *nweightspath) {
     srand(time(NULL)); // seed the prng
     
@@ -77,13 +79,13 @@ void NeuralHost::update() {
 void NeuralHost::runCoordinatorCommand() {
     // std::cout << std::endl;
     pid_t mypid = getpid();
-    // std::ifstream commandfile("/tmp/emergence-neuralnet/" + std::to_string(mypid) + ".command");
+    // std::ifstream commandfile(TMP_DIR + std::to_string(mypid) + ".command");
     //     std::string command;
     //     std::getline(commandfile, command);
     //     commandfile.close();
     //     
     // runCommand(command);
-    runCommands(strdup(std::string("/tmp/emergence-neuralnet/" + std::to_string(mypid) + ".command").c_str())); // we are doing it this way to prevent data overwrite race conditions
+    runCommands(strdup(std::string(TMP_DIR + std::to_string(mypid) + ".command").c_str())); // we are doing it this way to prevent data overwrite race conditions
     
     // std::cout << "\033[0;37m%\033[0m ";
 }

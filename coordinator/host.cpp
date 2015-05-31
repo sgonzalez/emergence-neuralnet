@@ -4,6 +4,8 @@
 
 #include "host.h"
 
+#define TMP_DIR "/tmp/emergence-neuralnet/"
+
 Host::Host(char *nconfigpath) {
     started = false;
     hasSentMappings = false;
@@ -202,7 +204,7 @@ void Host::childRunCommand(std::string name, std::string command) {
         }
         
         // write command to tmp file
-        std::ofstream pidfile("/tmp/emergence-neuralnet/" + std::to_string(pids[name]) + ".command");
+        std::ofstream pidfile(TMP_DIR + std::to_string(pids[name]) + ".command");
         pidfile << command;
         pidfile.close();
         
@@ -214,7 +216,7 @@ void Host::childRunCommand(std::string name, std::string command) {
 }
 
 void Host::setupGlobalInputs() {
-    std::ofstream ginputsfile("/tmp/emergence-neuralnet/globalinputs.output");
+    std::ofstream ginputsfile(TMP_DIR "globalinputs.output");
     for (std::pair<std::string, double> ginput : globalInputs) {
         ginputsfile << ginput.first << " " << ginput.second << std::endl;
     }
@@ -225,10 +227,10 @@ void Host::sendMappings() {
     std::cout << "OUT: Sending I/O mappings..." << std::endl;
     for (std::pair<std::string, std::map<std::string, std::map<std::string, std::string>>> childentry : systemInputMappings) {
         std::stringstream commandsStream; // stream to batch commands together
-        commandsStream << "setoutputfile /tmp/emergence-neuralnet/" + childentry.first + ".output" << std::endl;
+        commandsStream << "setoutputfile " TMP_DIR + childentry.first + ".output" << std::endl;
         for (std::pair<std::string, std::map<std::string, std::string>> fileentry : systemInputMappings[childentry.first]) {
             for (std::pair<std::string, std::string> mapping : systemInputMappings[childentry.first][fileentry.first]) {
-                commandsStream << "addinputmapping /tmp/emergence-neuralnet/" + fileentry.first + ".output" + " " + mapping.first + " " + mapping.second << std::endl;
+                commandsStream << "addinputmapping" TMP_DIR + fileentry.first + ".output" + " " + mapping.first + " " + mapping.second << std::endl;
             }
         }
         childRunCommand(childentry.first, commandsStream.str());
@@ -256,7 +258,7 @@ void Host::updateChildren() {
 }
 
 void Host::updateOscillators() {
-    std::ofstream funcfile("/tmp/emergence-neuralnet/oscillators.output");
+    std::ofstream funcfile(TMP_DIR"oscillators.output");
     funcfile << "sin1 " << sin(timeIndex * 2*M_PI) << std::endl; // sine wave, period = 1 second
     funcfile << "sin8 " << sin(timeIndex * 10 * 2*M_PI) << std::endl; // sine wave, period = 8 seconds
     funcfile << "cos1 " << cos(timeIndex * 2*M_PI) << std::endl; // cosine wave, period = 1 second

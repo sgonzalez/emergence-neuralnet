@@ -133,7 +133,6 @@ Both training and testing data files have the same format. Each sample is on a s
 
 ### TODO
 * Create new structure and weights files if they don't exist
-* Make the tmp file directory a constant
 * Have a "history" in the REPL like a shell does, so you can up-arrow to reuse the previously used command
 * Potentially move shared child code into a shared code directory
 
