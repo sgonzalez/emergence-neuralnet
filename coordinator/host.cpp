@@ -204,7 +204,7 @@ void Host::childRunCommand(std::string name, std::string command) {
         }
         
         // write command to tmp file
-        std::ofstream pidfile(TMP_DIR "+ std::to_string(pids[name]) + ".command");
+        std::ofstream pidfile(TMP_DIR + std::to_string(pids[name]) + ".command");
         pidfile << command;
         pidfile.close();
         
@@ -227,10 +227,10 @@ void Host::sendMappings() {
     std::cout << "OUT: Sending I/O mappings..." << std::endl;
     for (std::pair<std::string, std::map<std::string, std::map<std::string, std::string>>> childentry : systemInputMappings) {
         std::stringstream commandsStream; // stream to batch commands together
-        commandsStream << "setoutputfile "TMP_DIR + "childentry.first + ".output" << std::endl;
+        commandsStream << "setoutputfile " TMP_DIR + childentry.first + ".output" << std::endl;
         for (std::pair<std::string, std::map<std::string, std::string>> fileentry : systemInputMappings[childentry.first]) {
             for (std::pair<std::string, std::string> mapping : systemInputMappings[childentry.first][fileentry.first]) {
-                commandsStream << "addinputmapping" + TMP_DIR + " + fileentry.first + ".output" + " " + mapping.first + " " + mapping.second << std::endl;
+                commandsStream << "addinputmapping" TMP_DIR + fileentry.first + ".output" + " " + mapping.first + " " + mapping.second << std::endl;
             }
         }
         childRunCommand(childentry.first, commandsStream.str());
