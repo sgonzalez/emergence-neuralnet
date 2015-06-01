@@ -1,12 +1,14 @@
-/////////////////////////
-/// Santiago Gonzalez ///
-/////////////////////////
+///////////////////////////////////////////////////////////////
+/// Copyright 2015 by Santiago Gonzalez <slgonzalez@me.com> ///
+///////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <string>
 #include <unistd.h>
 
 #include "host.h"
+
+#define TMP_DIR std::string("/tmp/emergence-neuralnet/") ///< tmp directory for XPC
 
 static void show_usage(std::string name) {
     std::cerr << "Usage: " << name << " <option(s)> PERSISTENCE_FILE" << std::endl
@@ -58,8 +60,8 @@ void cleanUp() {
     delete host;
     
     if (!keepTmp) {
-        system("exec rm -rf /tmp/emergence-neuralnet");
-        std::cout << "Deleting /tmp/emergence-neuralnet/..." << std::endl;
+        system(("exec rm -rf " + TMP_DIR).c_str());
+        std::cout << "Deleting " << TMP_DIR << "..." << std::endl;
     }
 }
 
@@ -95,7 +97,7 @@ int main(int argc, char* argv[]) { // main almost exclusively does parameter pro
         }
     }
     
-    system("exec mkdir -p /tmp/emergence-neuralnet");
+    system(("exec mkdir -p " + TMP_DIR).c_str());
     
     atexit(cleanUp);
     signal(SIGINT, intHandler);

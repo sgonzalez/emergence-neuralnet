@@ -1,6 +1,6 @@
-/////////////////////////
-/// Santiago Gonzalez ///
-/////////////////////////
+///////////////////////////////////////////////////////////////
+/// Copyright 2015 by Santiago Gonzalez <slgonzalez@me.com> ///
+///////////////////////////////////////////////////////////////
 
 #pragma once
 
@@ -14,6 +14,8 @@
 #include <time.h>
 #include <unistd.h>
 #include <signal.h>
+
+#define TMP_DIR std::string("/tmp/emergence-neuralnet/") ///< tmp directory for XPC
 
 /// ChildHost manages the child, this is the main class. Only one instance of this should be running within the program.
 class ChildHost {    

@@ -1,6 +1,6 @@
-/////////////////////////
-/// Santiago Gonzalez ///
-/////////////////////////
+///////////////////////////////////////////////////////////////
+/// Copyright 2015 by Santiago Gonzalez <slgonzalez@me.com> ///
+///////////////////////////////////////////////////////////////
 
 #pragma once
 
@@ -18,6 +18,8 @@
 #include "neuralnet.h"
 #include "genetic.h"
 #include "utils.h"
+
+#define TMP_DIR std::string("/tmp/emergence-neuralnet/") ///< tmp directory for XPC
 
 /// NeuralHost manages the multi-layer perceptron (NeuralNet instance), this is the main class. Only one instance of this should be running within the program.
 class NeuralHost {

@@ -1,6 +1,6 @@
-/////////////////////////
-/// Santiago Gonzalez ///
-/////////////////////////
+///////////////////////////////////////////////////////////////
+/// Copyright 2015 by Santiago Gonzalez <slgonzalez@me.com> ///
+///////////////////////////////////////////////////////////////
 
 #pragma once
 
@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <signal.h>
+
+#define TMP_DIR std::string("/tmp/emergence-neuralnet/") ///< tmp directory for XPC
 
 struct Child {
     std::string invocation;

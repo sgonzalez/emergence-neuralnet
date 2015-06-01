@@ -40,7 +40,7 @@ The coordinator process manages each child process and coordinates input/output 
 The coordinator is capable of generating oscillatory inputs and propagating global inputs. The coordinator's set of real-time oscillating functions can be used as inputs in the ```oscillators``` output file. This means that you should not have any children named ```oscillators```. Currently ```oscillators``` provides sine and cosine functions. Global inputs are specified in the configuration file and are great for use as placeholders and constants across the system (hence, global). They are stored in the ```globalinputs``` output file. This means that you should not have any children named ```globalinputs```.
 
 ### XPC Files
-All XPC files are stored in ```/tmp/emergence-neuralnet```. This directory gets deleted when the coordinator terminates; to prevent this behavior from taking place, pass the ```--tmpkeep``` option to the coordinator. Different types of files reside in this directory:
+All XPC files are stored in ```/tmp/emergence-neuralnet```. Each module defines this separately. This directory gets deleted when the coordinator terminates; to prevent this behavior from taking place, pass the ```--tmpkeep``` option to the coordinator. Different types of files reside in this directory:
 
 * ```.command``` files: these files contain one or more child commands and are used by the parent to send commands, the number before the file extension is the child's PID
 * ```.output``` files: these are the files that contain the actual output data produced by each child (and the coordinator's oscillators and global inputs)
@@ -133,7 +133,6 @@ Both training and testing data files have the same format. Each sample is on a s
 
 ### TODO
 * Create new structure and weights files if they don't exist
-* Make the tmp file directory a constant
 * Have a "history" in the REPL like a shell does, so you can up-arrow to reuse the previously used command
 * Potentially move shared child code into a shared code directory
 
